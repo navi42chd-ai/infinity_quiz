@@ -1,0 +1,1523 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --ink: #241533;
+  --muted: #6f5f82;
+  --muted-soft: #b8abc7;
+  --line: #e2d6ee;
+  --paper: #fffdfb;
+  --bg: #f3edf7;
+  --accent: #c9973f;
+  --accent2: #6b3fa0;
+  --accent-soft: #d9b876;
+  --accent-soft-2: #c9b2e0;
+  --accent-tint: #faf1de;
+  --surface-2: #f8f4fb;
+  --surface-hover: #f5edfa;
+  --opt-bg: #f1e8f7;
+  --track-bg: #eadcf2;
+  --green: #0f9f6e;
+  --red: #dc3f54;
+  --overlay: rgba(36, 15, 51, 0.5);
+  --shadow-sm: 0 8px 28px rgba(60, 20, 90, 0.08);
+  --shadow-md: 0 14px 45px rgba(60, 20, 90, 0.1);
+  --shadow: 0 18px 55px rgba(60, 20, 90, 0.14);
+  --body-radial-tint: #e8d6f5;
+  --quiz-bg-1: #f9f4fc;
+  --quiz-bg-2: #efe1f7;
+  --quiz-top-bg: rgba(255, 253, 251, 0.94);
+  --card-translucent: rgba(255, 253, 251, 0.92);
+  --qcard-overlay: linear-gradient(180deg, rgba(28, 10, 46, 0.66), rgba(28, 10, 46, 0.9));
+  --qcard-light-text: #f8f4fb;
+  --qcard-light-muted: #d8c7e6;
+
+  color-scheme: light;
+}
+
+html[data-theme="dark"] {
+  --ink: #f3ecfa;
+  --muted: #b6a3c9;
+  --muted-soft: #7d6a92;
+  --line: #3a2a52;
+  --paper: #1c1229;
+  --bg: #100819;
+  --accent: #e0b563;
+  --accent2: #9b6fd1;
+  --accent-soft: #caa257;
+  --accent-soft-2: #6b4d94;
+  --accent-tint: #2a1d3d;
+  --surface-2: #221732;
+  --surface-hover: #2a1d3f;
+  --opt-bg: #241a37;
+  --track-bg: #2a1d3f;
+  --green: #34d399;
+  --red: #f87171;
+  --overlay: rgba(8, 3, 15, 0.75);
+  --shadow-sm: 0 8px 28px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 14px 45px rgba(0, 0, 0, 0.4);
+  --shadow: 0 18px 55px rgba(0, 0, 0, 0.5);
+  --body-radial-tint: #35204d;
+  --quiz-bg-1: #150c22;
+  --quiz-bg-2: #0d0715;
+  --quiz-top-bg: rgba(28, 18, 41, 0.9);
+  --card-translucent: rgba(28, 18, 41, 0.88);
+  --qcard-overlay: linear-gradient(180deg, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.88));
+
+  color-scheme: dark;
+}
+
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  font-family: Manrope, system-ui, sans-serif;
+  font-size: 16px;
+  background:
+    radial-gradient(circle at top right, var(--body-radial-tint) 0, transparent 32%),
+    var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+  line-height: 1.5;
+  overflow-x: hidden;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+body,
+body * {
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+  font-size: 16px;
+}
+
+.app-wrap {
+  width: min(1080px, calc(100% - 32px));
+  margin: auto;
+  padding-bottom: 48px;
+}
+
+.app-header {
+  height: 76px;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 34px;
+}
+
+.brand-mark {
+  width: 42px;
+  height: 42px;
+  border-radius: 13px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  display: grid;
+  place-items: center;
+  color: #ffffff;
+  font-family: Cinzel, Manrope, serif;
+  font-size: 16px;
+  font-weight: 700;
+  box-shadow: 0 10px 24px rgba(107, 63, 160, 0.3);
+}
+
+.logo {
+  font-family: Cinzel, Manrope, serif;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.logo span {
+  color: var(--accent);
+}
+
+.mini-tag {
+  font-size: 16px;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.theme-toggle {
+  margin-left: auto;
+  flex: 0 0 auto;
+  width: 42px;
+  height: 42px;
+  border-radius: 13px;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 16px;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+
+.theme-toggle:hover {
+  border-color: var(--accent-soft);
+  background: var(--surface-hover);
+}
+
+.theme-toggle-inline {
+  width: auto;
+  height: auto;
+  flex: 0 0 auto;
+  border-radius: 9px;
+  padding: 7px 9px;
+  font-size: 16px;
+}
+
+.screen {
+  display: none;
+}
+
+.screen.active {
+  display: block;
+}
+
+.page-heading {
+  margin: 12px 0 28px;
+}
+
+.page-heading h1,
+.section-title {
+  font-family: Cinzel, Manrope, serif;
+  font-size: 16px;
+  line-height: 1.4;
+  letter-spacing: 0.01em;
+  margin: 4px 0 8px;
+}
+
+.page-heading p {
+  color: var(--muted);
+  font-size: 16px;
+}
+
+.eyebrow,
+.q-kicker {
+  font-family: Cinzel, Manrope, serif;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  text-transform: uppercase;
+}
+
+.q-kicker-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-width: 0;
+}
+
+.q-kicker-row .q-kicker {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.btn-image {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  color: var(--ink);
+  font-size: 16px;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: 0.15s;
+}
+
+.btn-image:hover {
+  border-color: var(--accent-soft);
+  background: var(--surface-hover);
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+}
+
+.card {
+  position: relative;
+  min-height: 150px;
+  background: var(--card-translucent);
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  padding: 23px;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: 0.2s ease;
+  overflow: hidden;
+}
+
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 4px;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow);
+  border-color: var(--accent-soft-2);
+}
+
+.card-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  font-size: 16px;
+  background: var(--accent-tint);
+  margin-bottom: 17px;
+}
+
+.card-title {
+  font-family: Cinzel, Manrope, serif;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+.card-meta {
+  font-size: 16px;
+  color: var(--muted);
+  margin-top: 6px;
+}
+
+.card-arrow {
+  position: absolute;
+  right: 20px;
+  bottom: 18px;
+  width: 34px;
+  height: 34px;
+  border-radius: 11px;
+  background: var(--accent-tint);
+  color: var(--accent);
+  display: grid;
+  place-items: center;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.breadcrumb {
+  display: flex;
+  gap: 7px;
+  align-items: center;
+  flex-wrap: wrap;
+  color: var(--muted);
+  font-size: 16px;
+}
+
+.bc-link {
+  color: var(--accent);
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.bc-sep {
+  color: var(--muted-soft);
+  font-size: 16px;
+}
+
+.bc-current {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.chapter-header {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin: 26px 0;
+}
+
+.chapter-header-icon {
+  width: 64px;
+  height: 64px;
+  display: grid;
+  place-items: center;
+  background: var(--accent-tint);
+  border-radius: 19px;
+  font-size: 16px;
+}
+
+.quiz-fullscreen {
+  display: none;
+}
+
+.quiz-fullscreen.active {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  background: linear-gradient(180deg, var(--quiz-bg-1), var(--quiz-bg-2));
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+.quiz-top {
+  min-width: 0;
+  background: var(--quiz-top-bg);
+  backdrop-filter: blur(14px);
+  padding: 10px max(12px, calc((100vw - 900px) / 2));
+  border-bottom: 1px solid var(--line);
+}
+
+.quiz-title-row,
+.quiz-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.quiz-title-row .breadcrumb {
+  min-width: 0;
+  flex: 1 1 auto;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.quiz-title-row .breadcrumb span {
+  white-space: nowrap;
+  flex: 0 0 auto;
+}
+
+.quiz-title-row .breadcrumb .bc-current {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.btn-goto {
+  margin-left: auto;
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  border-radius: 9px;
+  padding: 7px 10px;
+  color: var(--ink);
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.btn-revise {
+  margin-left: auto;
+}
+
+.btn-goto + .btn-goto {
+  margin-left: 0;
+}
+
+@media (max-width: 420px) {
+  .btn-goto .btn-label {
+    display: none;
+  }
+
+  .btn-goto {
+    padding: 7px 9px;
+    gap: 0;
+  }
+}
+
+.quiz-meta-row {
+  margin-top: 7px;
+}
+
+.prog-text {
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.prog-attempted {
+  color: var(--muted);
+  font-size: 16px;
+  margin-left: auto;
+}
+
+.prog-track {
+  height: 4px;
+  background: var(--track-bg);
+  border-radius: 99px;
+  margin-top: 8px;
+  overflow: hidden;
+}
+
+.prog-fill {
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  border-radius: 99px;
+  transition: 0.25s;
+}
+
+.quiz-body {
+  min-height: 0;
+  overflow: hidden;
+  padding: clamp(8px, 1.8vh, 18px) 12px;
+}
+
+.question-shell {
+  position: relative;
+  width: min(820px, 100%);
+  height: 100%;
+  margin: auto;
+  background: var(--paper);
+  background-size: cover;
+  background-position: center;
+  border: 1px solid var(--line);
+  border-radius: clamp(16px, 2.2vw, 24px);
+  padding:
+    clamp(14px, 2.6vh, 28px)
+    clamp(14px, 3vw, 34px);
+  box-shadow: var(--shadow-md);
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
+  gap: clamp(8px, 1.7vh, 16px);
+  overflow: hidden;
+}
+
+/* Dynamic background image (fetched per-question) + dark scrim, so the
+   photo and the text stay readable together regardless of the image's
+   own brightness or which light/dark theme is active. */
+.question-shell::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  background: var(--qcard-overlay);
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.question-shell.has-bg-image::before {
+  opacity: 1;
+}
+
+.question-shell > * {
+  position: relative;
+  z-index: 1;
+}
+
+.question-shell.has-bg-image .q-kicker,
+.question-shell.has-bg-image .q-text {
+  color: var(--qcard-light-text);
+}
+
+.question-shell.has-bg-image .q-kicker {
+  color: #e8c789;
+}
+
+/* Let the background photo show through the option buttons too, instead
+   of them sitting as solid opaque blocks on top of it. The overlay above
+   is darkened enough that text stays legible either way. */
+.question-shell.has-bg-image .option-btn {
+  background: rgba(10, 14, 24, 0.32);
+  border-color: rgba(255, 255, 255, 0.18);
+  color: var(--qcard-light-text);
+}
+
+.question-shell.has-bg-image .option-btn:hover:not(:disabled) {
+  background: rgba(10, 14, 24, 0.48);
+  border-color: rgba(199, 210, 254, 0.6);
+}
+
+.question-shell.has-bg-image .opt-label {
+  background: rgba(255, 255, 255, 0.2);
+  color: var(--qcard-light-text);
+}
+
+/* Correct/wrong feedback keeps its green/red identity, just as a
+   translucent tint instead of a solid pastel block, so it blends with
+   the photo the same way the rest of the card now does. */
+.question-shell.has-bg-image .option-btn.correct,
+.question-shell.has-bg-image .option-btn.reveal {
+  background: rgba(52, 211, 153, 0.28);
+  border-color: rgba(110, 231, 183, 0.7);
+}
+
+.question-shell.has-bg-image .option-btn.wrong {
+  background: rgba(248, 113, 113, 0.28);
+  border-color: rgba(253, 164, 175, 0.7);
+}
+
+.q-text {
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1.35;
+  letter-spacing: 0;
+  max-height: 24vh;
+  overflow: auto;
+  scrollbar-width: thin;
+}
+
+.options-list {
+  display: grid;
+  grid-template-rows: repeat(4, minmax(0, auto));
+  align-content: center;
+  gap: clamp(6px, 1.2vh, 11px);
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.option-btn {
+  width: 100%;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: clamp(8px, 1.5vw, 14px);
+  text-align: left;
+  padding:
+    clamp(7px, 1.3vh, 13px)
+    clamp(10px, 1.8vw, 16px);
+  border: 1.5px solid var(--line);
+  border-radius: clamp(10px, 1.5vw, 15px);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.25;
+  cursor: pointer;
+  transition: 0.15s;
+  overflow: hidden;
+  position: relative;
+}
+
+.opt-text {
+  font-size: 16px;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-width: 0;
+  flex: 1 1 auto;
+  word-break: break-word;
+}
+
+.option-btn:hover:not(:disabled) {
+  border-color: var(--accent-soft);
+  background: var(--surface-hover);
+}
+
+.opt-label {
+  flex: 0 0 clamp(27px, 3.2vw, 34px);
+  height: clamp(27px, 3.2vw, 34px);
+  border-radius: 9px;
+  background: var(--opt-bg);
+  display: grid;
+  place-items: center;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.option-btn.correct,
+.option-btn.reveal {
+  border-color: #6ee7b7;
+  background: #ecfdf5;
+  animation: optionCorrectPop 0.4s ease;
+}
+
+.option-btn.correct .opt-label,
+.option-btn.reveal .opt-label {
+  background: var(--green);
+  color: #ffffff;
+}
+
+.option-btn.wrong {
+  border-color: #fda4af;
+  background: #fff1f2;
+}
+
+.option-btn.wrong .opt-label {
+  background: var(--red);
+  color: #ffffff;
+}
+
+/* Dark theme: the pale pastel green/red washes read fine on a light
+   card, but on a dark card they'd leave light text nearly invisible.
+   Same green/red identity, just a background tint that actually works
+   against a dark surface — the semantic colors themselves are untouched. */
+html[data-theme="dark"] .option-btn.correct,
+html[data-theme="dark"] .option-btn.reveal {
+  background: rgba(52, 211, 153, 0.16);
+  border-color: rgba(52, 211, 153, 0.55);
+}
+
+html[data-theme="dark"] .option-btn.wrong {
+  background: rgba(248, 113, 113, 0.16);
+  border-color: rgba(248, 113, 113, 0.55);
+}
+
+.option-btn.shake {
+  animation: optionShake 0.4s ease;
+}
+
+@keyframes optionCorrectPop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.025); }
+  100% { transform: scale(1); }
+}
+
+@keyframes optionShake {
+  10%, 90% { transform: translateX(-1px); }
+  20%, 80% { transform: translateX(2px); }
+  30%, 50%, 70% { transform: translateX(-5px); }
+  40%, 60% { transform: translateX(5px); }
+}
+
+/* ── INFINITY STONE ANSWER EFFECT ──────────────────────────────
+   Fired on a correct answer alongside its stone's recorded sound.
+   --stone-core/--stone-mid/--stone-edge are set inline by JS per
+   random stone. Three layers: a hot core flash lighting the fill
+   like the stone's own material, a ripple ring expanding from the
+   center, and a border/outer glow that illuminates the capsule's
+   edge. overflow:hidden on .option-btn clips the ripple to the
+   capsule's rounded boundary. */
+
+.option-btn.correct.stone-active {
+  border-color: var(--stone-mid, #6ee7b7);
+  animation:
+    optionCorrectPop 0.4s ease,
+    stoneBorderGlow 1.3s ease-out;
+}
+
+/* The A/B/C/D badge stays tinted with the stone's color too, instead
+   of resetting to the generic correct-answer green. */
+.option-btn.correct.stone-active .opt-label {
+  background: var(--stone-mid, var(--green));
+}
+
+.option-btn.correct.stone-active .opt-label,
+.option-btn.correct.stone-active .opt-text {
+  position: relative;
+  z-index: 2;
+}
+
+.option-btn.correct.stone-active::before,
+.option-btn.correct.stone-active::after {
+  content: '';
+  position: absolute;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Core flash: the capsule's fill lighting up from the middle, like
+   the stone's own glow shining through its material. Uses an ellipse
+   (not a circle) so the color reaches every corner of a wide capsule
+   instead of fading to transparent before the edges — and no fully-
+   transparent stop, so the whole interior reads as the stone's color
+   at peak, not just a spot in the middle. */
+.option-btn.correct.stone-active::before {
+  inset: 0;
+  background:
+    radial-gradient(
+      ellipse at 50% 50%,
+      var(--stone-core, #fff) 0%,
+      var(--stone-mid, #6ee7b7) 55%,
+      var(--stone-edge, #34d399) 100%
+    );
+  opacity: 0;
+  animation: stoneCoreFlash 1.3s ease-out forwards;
+}
+
+/* Ripple ring expanding outward from the center. */
+.option-btn.correct.stone-active::after {
+  left: 50%;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  margin: -7px 0 0 -7px;
+  border-radius: 50%;
+  border: 2px solid var(--stone-core, #fff);
+  box-shadow: 0 0 8px 1px var(--stone-mid, transparent);
+  opacity: 0;
+  animation: stoneRipple 0.85s cubic-bezier(0.2, 0.7, 0.3, 1) forwards;
+}
+
+@keyframes stoneCoreFlash {
+  0% { opacity: 0; }
+  18% { opacity: 0.5; }
+  60% { opacity: 0.38; }
+  100% { opacity: 0; }
+}
+
+@keyframes stoneRipple {
+  0% {
+    opacity: 0.55;
+    width: 14px;
+    height: 14px;
+    margin: -7px 0 0 -7px;
+  }
+  75% {
+    opacity: 0.22;
+  }
+  100% {
+    opacity: 0;
+    width: 340px;
+    height: 340px;
+    margin: -170px 0 0 -170px;
+  }
+}
+
+@keyframes stoneBorderGlow {
+  0% { box-shadow: 0 0 0 0 transparent; }
+  20% { box-shadow: 0 0 13px 2px var(--stone-mid, transparent); }
+  55% { box-shadow: 0 0 9px 1px var(--stone-mid, transparent); }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+
+html[data-theme="dark"] .option-btn.correct.stone-active {
+  border-color: var(--stone-mid, #34d399);
+}
+
+/* Higher specificity than both the light and dark theme's default
+   .correct background (which include an attribute/theme selector),
+   so the stone tint sticks as the resting state instead of fading
+   back to the generic correct-answer green. */
+html .option-btn.correct.stone-active {
+  background: linear-gradient(
+    135deg,
+    var(--stone-mid-tint, rgba(110, 231, 183, 0.22)),
+    var(--stone-edge-tint, rgba(52, 211, 153, 0.14))
+  );
+}
+
+/* Questions with a background photo behind them (.has-bg-image) use a
+   more specific selector for their own translucent correct/wrong
+   tint, which otherwise outranks the rule above and silences the
+   stone color. Match that specificity here so the stone tint always
+   wins, image or no image. */
+.question-shell.has-bg-image .option-btn.correct.stone-active {
+  background: linear-gradient(
+    135deg,
+    var(--stone-mid-tint, rgba(110, 231, 183, 0.32)),
+    var(--stone-edge-tint, rgba(52, 211, 153, 0.22))
+  );
+  border-color: var(--stone-mid, rgba(110, 231, 183, 0.7));
+}
+
+/* ── INFINITY STONE AMBIENT BACKGROUND GLOW ────────────────────
+   A page-level companion to the capsule effect above: the same
+   stone light washing the area *outside* the question card (the
+   margins, header gaps, and anywhere the card doesn't cover). It's
+   painted before .app-wrap in the DOM so the card and its own
+   opaque backgrounds naturally sit on top of it — no z-index fights
+   needed. --amb-x/--amb-y (the tapped answer's position) and the
+   stone colors are set inline by JS on each correct answer. */
+.stone-ambient-glow {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  opacity: 0;
+}
+
+.stone-ambient-glow::before,
+.stone-ambient-glow::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+
+.stone-ambient-glow::before {
+  background: radial-gradient(
+    circle 620px at var(--amb-x, 50%) var(--amb-y, 50%),
+    var(--stone-mid, transparent) 0%,
+    var(--stone-edge, transparent) 40%,
+    transparent 100%
+  );
+}
+
+.stone-ambient-glow::after {
+  left: var(--amb-x, 50%);
+  top: var(--amb-y, 50%);
+  width: 40px;
+  height: 40px;
+  margin: -20px 0 0 -20px;
+  border-radius: 50%;
+  border: 2px solid var(--stone-mid, transparent);
+  opacity: 0;
+}
+
+.stone-ambient-glow.active {
+  animation: ambientGlowPulse 1.4s ease-out forwards;
+}
+
+.stone-ambient-glow.active::after {
+  animation: ambientRingExpand 1.4s cubic-bezier(0.2, 0.65, 0.3, 1) forwards;
+}
+
+@keyframes ambientGlowPulse {
+  0% { opacity: 0; }
+  20% { opacity: 0.55; }
+  100% { opacity: 0; }
+}
+
+@keyframes ambientRingExpand {
+  0% {
+    opacity: 0.5;
+    width: 40px;
+    height: 40px;
+    margin: -20px 0 0 -20px;
+  }
+  70% { opacity: 0.18; }
+  100% {
+    opacity: 0;
+    width: 220vmax;
+    height: 220vmax;
+    margin: -110vmax 0 0 -110vmax;
+  }
+}
+
+.confetti-particle {
+  position: fixed;
+  pointer-events: none;
+  z-index: 200;
+  transform: translate(-50%, -50%) scale(1.3);
+  animation: confettiFly 0.85s ease-out forwards;
+}
+
+@keyframes confettiFly {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.3) rotate(0deg);
+  }
+  100% {
+    opacity: 0;
+    transform:
+      translate(calc(-50% + var(--dx)), calc(-50% + var(--dy)))
+      scale(1.3)
+      rotate(180deg);
+  }
+}
+
+.quiz-footer {
+  display: flex;
+  gap: 9px;
+  padding: 9px max(12px, calc((100vw - 820px) / 2));
+  padding-bottom: max(9px, env(safe-area-inset-bottom));
+  background: var(--paper);
+  border-top: 1px solid var(--line);
+}
+
+.btn {
+  border: 0;
+  border-radius: 11px;
+  padding: 10px 16px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.btn-outline {
+  background: var(--paper);
+  color: var(--ink);
+  border: 1px solid var(--line);
+}
+
+.btn-next,
+.btn-end {
+  margin-left: auto;
+  min-width: 125px;
+}
+
+.btn-reattempt {
+  position: fixed;
+  top: 10px;
+  right: 12px;
+  z-index: 80;
+  border: 1px solid #fecdd3;
+  background: var(--paper);
+  color: #be123c;
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-size: 16px;
+  font-weight: 800;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.reattempt-count {
+  display: inline-grid;
+  place-items: center;
+  background: #be123c;
+  color: #ffffff;
+  border-radius: 99px;
+  min-width: 19px;
+  height: 19px;
+  margin-left: 4px;
+  font-size: 16px;
+}
+
+.result-card {
+  position: relative;
+  max-width: 850px;
+  margin: 35px auto 0;
+  background:
+    var(--qcard-overlay),
+    url('../images/results-bg.jpg') center 30% / cover no-repeat,
+    var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 28px;
+  padding: 36px;
+  text-align: center;
+  box-shadow: var(--shadow);
+  color: var(--qcard-light-text);
+}
+
+.result-chapter-label {
+  color: var(--qcard-light-muted);
+  font-size: 16px;
+}
+
+.result-stats {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 9px;
+  margin: 25px 0;
+}
+
+.stat-box {
+  padding: 14px 7px;
+  background: rgba(15, 8, 24, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(6px);
+  border-radius: 14px;
+  opacity: 0;
+}
+
+.stat-lbl {
+  font-size: 16px;
+  text-transform: uppercase;
+  color: var(--qcard-light-muted);
+  font-weight: 700;
+}
+
+.result-ring {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  margin: auto;
+  background: conic-gradient(
+    var(--accent) 0 0%,
+    rgba(255, 255, 255, 0.18) 0%
+  );
+  border: 9px solid rgba(15, 8, 24, 0.55);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.18);
+  transform: scale(0.85);
+  opacity: 0;
+}
+
+.result-card.animate-in .result-ring {
+  animation: ringPopIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.result-pct {
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.result-grade {
+  font-size: 16px;
+  font-weight: 800;
+  margin-top: 18px;
+  opacity: 0;
+}
+
+.result-card.animate-in .result-grade {
+  animation: statFadeIn 0.45s ease 0.55s forwards;
+}
+
+.result-card.animate-in .stat-box {
+  animation: statFadeIn 0.4s ease forwards;
+}
+
+.result-card.animate-in .stat-box:nth-child(1) { animation-delay: 0.65s; }
+.result-card.animate-in .stat-box:nth-child(2) { animation-delay: 0.71s; }
+.result-card.animate-in .stat-box:nth-child(3) { animation-delay: 0.77s; }
+.result-card.animate-in .stat-box:nth-child(4) { animation-delay: 0.83s; }
+.result-card.animate-in .stat-box:nth-child(5) { animation-delay: 0.89s; }
+.result-card.animate-in .stat-box:nth-child(6) { animation-delay: 0.95s; }
+
+@keyframes ringPopIn {
+  from { opacity: 0; transform: scale(0.85); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes statFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.stat-num {
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.stat-num.good {
+  color: var(--green);
+}
+
+.stat-num.bad {
+  color: var(--red);
+}
+
+.result-actions {
+  display: flex;
+  gap: 9px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: var(--overlay);
+  display: none;
+  place-items: center;
+  z-index: 100;
+  padding: 20px;
+  backdrop-filter: blur(6px);
+}
+
+.modal-backdrop.open {
+  display: grid;
+}
+
+.modal-box {
+  width: min(390px, 100%);
+  background: var(--paper);
+  border-radius: 22px;
+  padding: 26px;
+  box-shadow: var(--shadow);
+}
+
+.image-modal-box {
+  width: min(520px, 100%);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.image-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.image-modal-header .modal-title {
+  margin-top: 0;
+  text-align: left;
+}
+
+.image-modal-close {
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: var(--opt-bg);
+  color: var(--ink);
+  font-weight: 800;
+  font-size: 16px;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+
+.image-modal-close:hover {
+  background: var(--line);
+}
+
+.image-modal-body {
+  margin-top: 16px;
+  min-height: 160px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  gap: 10px;
+  text-align: center;
+}
+
+.image-modal-img {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 60vh;
+  margin: 0 auto;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(30, 41, 59, 0.15);
+}
+
+.image-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  width: 100%;
+}
+
+.image-grid-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  text-decoration: none;
+  color: inherit;
+  transition: 0.15s;
+}
+
+.image-grid-item:hover {
+  border-color: var(--accent-soft);
+  background: var(--surface-hover);
+}
+
+.image-grid-img {
+  width: 100%;
+  height: 120px;
+  object-fit: contain;
+  background: var(--opt-bg);
+  border-radius: 10px;
+}
+
+.image-grid-caption {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink);
+  text-align: center;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.image-modal-caption {
+  font-weight: 800;
+  color: var(--ink);
+  margin-top: 2px;
+}
+
+.image-modal-source {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.image-modal-source:hover {
+  text-decoration: underline;
+}
+
+.image-modal-attribution {
+  font-size: 16px;
+  color: var(--muted);
+  margin-top: -4px;
+}
+
+.image-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 26px 0;
+}
+
+.image-spinner {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 3px solid var(--line);
+  border-top-color: var(--accent);
+  animation: imageSpin 0.8s linear infinite;
+}
+
+@keyframes imageSpin {
+  to { transform: rotate(360deg); }
+}
+
+.image-empty {
+  padding: 20px 6px;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.modal-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--accent-tint);
+  color: var(--accent);
+  display: grid;
+  place-items: center;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.modal-title {
+  font-size: 16px;
+  font-weight: 800;
+  margin-top: 14px;
+}
+
+.modal-sub {
+  font-size: 16px;
+  color: var(--muted);
+  margin: 4px 0 13px;
+}
+
+.modal-input {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  outline: none;
+}
+
+.revise-field-row {
+  display: flex;
+  gap: 10px;
+}
+
+.revise-field {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: left;
+}
+
+.revise-field label {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.revise-field-loops {
+  margin-top: 12px;
+}
+
+.modal-error {
+  min-height: 18px;
+  color: var(--red);
+  font-size: 16px;
+  margin-top: 5px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 11px;
+}
+
+@media (max-width: 700px) {
+  .app-wrap {
+    width: min(calc(100% - 22px), 1080px);
+  }
+
+  .app-header {
+    height: 68px;
+    margin-bottom: 24px;
+  }
+
+  .card-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .result-stats {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .result-card {
+    padding: 25px 16px;
+  }
+
+  .quiz-top {
+    padding-top: max(8px, env(safe-area-inset-top));
+  }
+
+  .quiz-title-row .breadcrumb .bc-link:first-child,
+  .quiz-title-row .breadcrumb .bc-sep:first-of-type {
+    display: none;
+  }
+
+  .btn-goto {
+    padding: 6px 8px;
+  }
+
+  .q-text {
+    max-height: 20vh;
+  }
+
+  .btn {
+    padding: 9px 13px;
+  }
+
+  .btn-next,
+  .btn-end {
+    min-width: 108px;
+  }
+}
+
+@media (max-height: 620px) {
+  .quiz-top {
+    padding-top: 6px;
+    padding-bottom: 6px;
+  }
+
+  .quiz-meta-row {
+    margin-top: 4px;
+  }
+
+  .prog-track {
+    margin-top: 5px;
+  }
+
+  .quiz-body {
+    padding: 6px 10px;
+  }
+
+  .question-shell {
+    padding: 10px 14px;
+    gap: 6px;
+    border-radius: 15px;
+  }
+
+  .q-text {
+    max-height: 18vh;
+  }
+
+  .options-list {
+    gap: 5px;
+    overflow-y: auto;
+  }
+
+  .option-btn {
+    padding: 5px 9px;
+    border-radius: 9px;
+    min-height: 36px;
+  }
+
+  .opt-label {
+    flex-basis: 25px;
+    height: 25px;
+  }
+
+  .quiz-footer {
+    padding-top: 6px;
+    padding-bottom: max(6px, env(safe-area-inset-bottom));
+  }
+
+  .btn {
+    padding: 7px 11px;
+  }
+}
+
+/* Keeps all visible text fixed at 16px on every device */
+body,
+body * {
+  font-size: 16px !important;
+}
+
+/* ── MILESTONE CELEBRATIONS (toggle + popup video) ────────────── */
+
+.milestone-toggle.is-off {
+  opacity: 0.45;
+  filter: grayscale(1);
+}
+
+.milestone-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: var(--overlay);
+  backdrop-filter: blur(3px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.28s ease;
+}
+
+.milestone-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.milestone-card {
+  width: min(440px, 100%);
+  border-radius: 22px;
+  overflow: hidden;
+  background: #000;
+  box-shadow: var(--shadow);
+  border: 2px solid transparent;
+  background-image:
+    linear-gradient(#000, #000),
+    linear-gradient(135deg, var(--accent), var(--accent2));
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+  transform: scale(0.88);
+  transition: transform 0.32s cubic-bezier(0.2, 0.8, 0.3, 1.1);
+}
+
+.milestone-overlay.open .milestone-card {
+  transform: scale(1);
+}
+
+.milestone-video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 640 / 268;
+  background: #000;
+}
