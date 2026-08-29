@@ -833,9 +833,7 @@ function triggerStoneEffect(button, stone) {
   void button.offsetWidth; // force reflow so the animation replays
   button.classList.add('stone-active');
 
-  // The screen-wide ambient wash is reserved for milestones (their own
-  // popup handles it) so it's not called here — a streak bonus stays
-  // contained to the capsule itself, not a full-screen flash.
+  triggerAmbientGlow(button, stone);
 }
 
 function hexToRgba(hex, alpha) {
