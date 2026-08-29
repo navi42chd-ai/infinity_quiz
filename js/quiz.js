@@ -15,24 +15,27 @@ let state = {
   isReattempt: false,
   reviseInfo: null, // { from, to, loops, rangeSize } when in a custom revise session
   bgImageCache: new Map(), // question index -> resolved background image URL (or null)
-  bgPrefetchInFlight: new Set() // question indices currently being prefetched
+  bgPrefetchInFlight: new Set(), // question indices currently being prefetched
+  milestonesShown: new Set() // which % milestones (20/40/60/80/100) have already
+                              // fired this session, so each shows only once
 };
 
 const WRONG_QUESTIONS_KEY = 'ssc-quiz-wrong-questions-v1';
 const THEME_KEY = 'quizhub-theme';
+const MILESTONES_KEY = 'quizhub-milestones-enabled';
 
 // ── THEME (light / dark) ─────────────────────────────────────
 
 function applyTheme(theme) {
   document.documentElement.setAttribute('data-theme', theme);
 
-  document.querySelectorAll('.theme-toggle').forEach(btn => {
+  document.querySelectorAll('.theme-toggle:not(.milestone-toggle)').forEach(btn => {
     btn.textContent = theme === 'dark' ? '☀️' : '🌙';
   });
 
   const themeColorMeta = document.querySelector('meta[name="theme-color"]');
   if (themeColorMeta) {
-    themeColorMeta.setAttribute('content', theme === 'dark' ? '#0b0f1a' : '#4f46e5');
+    themeColorMeta.setAttribute('content', theme === 'dark' ? '#100819' : '#c9973f');
   }
 }
 
@@ -47,6 +50,163 @@ function toggleTheme() {
   } catch (error) {
     // localStorage unavailable (private browsing, etc.) — theme just won't persist
   }
+}
+
+// ── MILESTONE CELEBRATIONS (on/off) ──────────────────────────
+
+function getMilestonesEnabled() {
+  try {
+    const saved = localStorage.getItem(MILESTONES_KEY);
+    return saved === null ? true : saved === 'on';
+  } catch (error) {
+    return true;
+  }
+}
+
+function applyMilestonesToggle(enabled) {
+  document.querySelectorAll('.milestone-toggle').forEach(btn => {
+    btn.classList.toggle('is-off', !enabled);
+    btn.setAttribute('aria-pressed', String(enabled));
+    btn.title = enabled
+      ? 'Milestone celebrations: on (tap to turn off)'
+      : 'Milestone celebrations: off (tap to turn on)';
+  });
+}
+
+function toggleMilestones() {
+  const next = !getMilestonesEnabled();
+
+  try {
+    localStorage.setItem(MILESTONES_KEY, next ? 'on' : 'off');
+  } catch (error) {
+    // localStorage unavailable — preference just won't persist
+  }
+
+  applyMilestonesToggle(next);
+}
+
+// ── MILESTONE CELEBRATIONS (popup video) ─────────────────────
+// At 20/40/60/80% of the current question set answered *correctly*,
+// a short themed clip pops up as a reward. The 100% clip is special:
+// it only fires on a perfect run (every question attempted, all
+// correct) and plays right before the results screen appears.
+
+const MILESTONE_THRESHOLDS = [20, 40, 60, 80, 100];
+
+const MILESTONE_VIDEOS = {
+  20: 'video/milestones/20.mp4',
+  40: 'video/milestones/40.mp4',
+  60: 'video/milestones/60.mp4',
+  80: 'video/milestones/80.mp4',
+  100: 'video/milestones/100.mp4'
+};
+
+let milestoneQueue = [];
+let milestonePlaying = false;
+
+function showMilestone(pct) {
+  return new Promise(resolve => {
+    const overlay = document.getElementById('milestone-overlay');
+    const video = document.getElementById('milestone-video');
+    if (!overlay || !video) {
+      resolve();
+      return;
+    }
+
+    let done = false;
+    let maxTimer = null;
+
+    const finish = () => {
+      if (done) return;
+      done = true;
+      clearTimeout(maxTimer);
+      video.removeEventListener('ended', finish);
+      video.removeEventListener('error', finish);
+      overlay.classList.remove('open');
+      overlay.setAttribute('aria-hidden', 'true');
+      // Wait for the fade-out transition before tearing down/resolving.
+      setTimeout(() => {
+        video.pause();
+        video.removeAttribute('src');
+        video.load();
+        resolve();
+      }, 280);
+    };
+
+    video.src = MILESTONE_VIDEOS[pct];
+    video.addEventListener('ended', finish);
+    video.addEventListener('error', finish);
+    // Safety net in case the clip fails to load/play for any reason —
+    // never let a stuck popup block the quiz.
+    maxTimer = setTimeout(finish, 7000);
+
+    overlay.classList.add('open');
+    overlay.setAttribute('aria-hidden', 'false');
+    video.muted = false;
+    video.volume = 1;
+    video.currentTime = 0;
+    video.play().catch(finish);
+  });
+}
+
+async function queueMilestone(pct) {
+  milestoneQueue.push(pct);
+  if (milestonePlaying) return;
+
+  milestonePlaying = true;
+  while (milestoneQueue.length) {
+    const next = milestoneQueue.shift();
+    await showMilestone(next);
+  }
+  milestonePlaying = false;
+}
+
+// Checks the running correct-answer count against the 20/40/60/80
+// thresholds (not 100 — that one's handled separately, right before
+// the results screen) and queues any newly-crossed milestone.
+function checkMilestones() {
+  if (!getMilestonesEnabled()) return;
+
+  const total = state.questions.length;
+  if (total === 0) return;
+
+  const correctCount = state.answered.filter(
+    (a, i) => a === state.questions[i].ans
+  ).length;
+
+  const pct = (correctCount / total) * 100;
+
+  MILESTONE_THRESHOLDS.filter(t => t !== 100).forEach(threshold => {
+    if (pct >= threshold && !state.milestonesShown.has(threshold)) {
+      state.milestonesShown.add(threshold);
+      queueMilestone(threshold);
+    }
+  });
+}
+
+// Called from endQuiz() before the results screen renders. Returns a
+// promise that resolves once any perfect-run celebration has finished
+// (or resolves immediately if this wasn't a perfect run, or the
+// feature's off, or it's already been shown this session).
+function maybeShowPerfectRunMilestone() {
+  const total = state.questions.length;
+
+  const correctCount = state.answered.filter(
+    (a, i) => a === state.questions[i].ans
+  ).length;
+
+  const isPerfect = total > 0 && correctCount === total;
+
+  if (
+    isPerfect &&
+    getMilestonesEnabled() &&
+    !state.milestonesShown.has(100)
+  ) {
+    state.milestonesShown.add(100);
+    return queueMilestone(100);
+  }
+
+  return Promise.resolve();
 }
 
 function getWrongQuestions() {
@@ -124,6 +284,8 @@ function startReattempt() {
   state.current = 0;
   state.answered = new Array(state.questions.length).fill(null);
   state.startTime = Date.now();
+  state.milestonesShown = new Set();
+  state.streak = 0;
   state.isReattempt = true;
   state.reviseInfo = null;
   state.bgImageCache = new Map();
@@ -290,6 +452,8 @@ function selectChapter(chapter) {
   state.current = 0;
   state.answered = new Array(state.questions.length).fill(null);
   state.startTime = Date.now();
+  state.milestonesShown = new Set();
+  state.streak = 0;
   state.isReattempt = false;
   state.reviseInfo = null;
   state.bgImageCache = new Map();
@@ -333,6 +497,8 @@ function renderQuestion() {
 
   document.getElementById('prog-attempted').textContent =
     `${attempted} attempted`;
+
+  updateStreakBadge();
 
   // Question
   document.getElementById('q-kicker').textContent = `${state.chapter.label} MCQ`;
@@ -499,27 +665,80 @@ function setQuestionShellBackground(url) {
   }
 }
 
+function willTriggerImmediateMilestone() {
+  if (!getMilestonesEnabled()) return false;
+
+  const total = state.questions.length;
+  if (total === 0) return false;
+
+  const correctCount = state.answered.filter(
+    (a, i) => a === state.questions[i].ans
+  ).length;
+
+  const pct = (correctCount / total) * 100;
+
+  return MILESTONE_THRESHOLDS.filter(t => t !== 100).some(
+    threshold => pct >= threshold && !state.milestonesShown.has(threshold)
+  );
+}
+
 function answer(chosenIndex) {
   const question = state.questions[state.current];
   const isCorrect = chosenIndex === question.ans;
 
   state.answered[state.current] = chosenIndex;
 
-  if (!isCorrect) {
+  if (isCorrect) {
+    state.streak = (state.streak || 0) + 1;
+  } else {
+    state.streak = 0;
     saveWrongQuestion(question);
   }
 
-  showAnswer(chosenIndex, question.ans, { fresh: true });
+  // Every 20 correct answers in a row is its own small bonus moment —
+  // full stone color/ripple/confetti + that stone's sound — separate
+  // from the regular light chime the rest of the time.
+  const isStreakBonus = isCorrect && state.streak > 0 && state.streak % 20 === 0;
+
+  // If this correct answer is about to pop up a milestone clip, let that
+  // clip's own audio carry the moment instead of layering another sound
+  // underneath it.
+  const suppressCorrectSound = isCorrect && willTriggerImmediateMilestone();
+
+  showAnswer(chosenIndex, question.ans, {
+    fresh: true,
+    suppressCorrectSound,
+    isStreakBonus
+  });
 
   updateNavButtons();
+  updateStreakBadge();
 
   const attempted = state.answered.filter(answer => answer !== null).length;
 
   document.getElementById('prog-attempted').textContent =
     `${attempted} attempted`;
+
+  if (isCorrect) {
+    checkMilestones();
+  }
 }
 
-function showAnswer(chosen, correct, { fresh = false } = {}) {
+function updateStreakBadge() {
+  const badge = document.getElementById('streak-badge');
+  const count = document.getElementById('streak-count');
+  if (!badge || !count) return;
+
+  const streak = state.streak || 0;
+  if (streak >= 3) {
+    count.textContent = streak;
+    badge.style.display = '';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+function showAnswer(chosen, correct, { fresh = false, suppressCorrectSound = false, isStreakBonus = false } = {}) {
   const optionButtons = document.querySelectorAll('.option-btn');
 
   optionButtons.forEach(button => {
@@ -539,10 +758,16 @@ function showAnswer(chosen, correct, { fresh = false } = {}) {
   // navigating back to review a question they already answered.
   if (fresh) {
     if (isCorrect) {
-      const stone = pickRandomStone();
-      playCorrectSound(stone);
-      triggerStoneEffect(chosenButton, stone);
-      spawnConfetti(chosenButton, stone);
+      if (isStreakBonus) {
+        const stone = pickRandomStone();
+        if (!suppressCorrectSound) {
+          playStoneSound(stone);
+        }
+        triggerStoneEffect(chosenButton, stone);
+        spawnConfetti(chosenButton, stone);
+      } else if (!suppressCorrectSound) {
+        playSynthCorrectSound();
+      }
       if (navigator.vibrate) navigator.vibrate(15);
     } else {
       chosenButton.classList.add('shake');
@@ -600,13 +825,25 @@ function triggerStoneEffect(button, stone) {
   button.style.setProperty('--stone-core', stone.core);
   button.style.setProperty('--stone-mid', stone.mid);
   button.style.setProperty('--stone-edge', stone.edge);
+  button.style.setProperty('--stone-mid-tint', hexToRgba(stone.mid, 0.28));
+  button.style.setProperty('--stone-edge-tint', hexToRgba(stone.edge, 0.20));
   // Restart the animation cleanly even if triggered back-to-back.
   button.classList.remove('stone-active');
   // eslint-disable-next-line no-unused-expressions
   void button.offsetWidth; // force reflow so the animation replays
   button.classList.add('stone-active');
 
-  triggerAmbientGlow(button, stone);
+  // The screen-wide ambient wash is reserved for milestones (their own
+  // popup handles it) so it's not called here — a 20-streak bonus stays
+  // contained to the capsule itself, not a full-screen flash.
+}
+
+function hexToRgba(hex, alpha) {
+  const clean = hex.replace('#', '');
+  const r = parseInt(clean.substring(0, 2), 16);
+  const g = parseInt(clean.substring(2, 4), 16);
+  const b = parseInt(clean.substring(4, 6), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
 function triggerAmbientGlow(originButton, stone) {
@@ -860,6 +1097,8 @@ function submitRevise() {
   state.current = 0;
   state.answered = new Array(combined.length).fill(null);
   state.startTime = Date.now();
+  state.milestonesShown = new Set();
+  state.streak = 0;
   state.isReattempt = false;
   state.reviseInfo = { from, to, loops, rangeSize: rangeSlice.length };
   state.bgImageCache = new Map();
@@ -1245,6 +1484,7 @@ function closeImageModal() {
 
 document.addEventListener('DOMContentLoaded', () => {
   applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light');
+  applyMilestonesToggle(getMilestonesEnabled());
 
   const gotoInput = document.getElementById('goto-input');
   const gotoModal = document.getElementById('goto-modal');
@@ -1300,7 +1540,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // ── RESULT SCREEN ────────────────────────────────────────────
 
-function endQuiz() {
+async function endQuiz() {
+  // A perfect run gets its own celebration clip, shown right before the
+  // results screen appears. This resolves immediately if that doesn't
+  // apply (not a perfect run, feature off, or already shown).
+  await maybeShowPerfectRunMilestone();
+
   const total = state.questions.length;
 
   const correct = state.answered.filter(
@@ -1398,10 +1643,9 @@ function animateScoreRing(targetPercentage, color) {
   const duration = 1100;
   const startTime = performance.now();
 
-  // Read the theme-aware "empty segment" color live, so the ring looks
-  // correct in both light and dark mode without hardcoding a hex value.
-  const trackColor = getComputedStyle(document.documentElement)
-    .getPropertyValue('--opt-bg').trim() || '#f1f3f7';
+  // A translucent track (not the theme's opaque --opt-bg) so the ring
+  // blends with the results screen's photo background in both themes.
+  const trackColor = 'rgba(255, 255, 255, 0.18)';
 
   ring.style.background =
     `conic-gradient(${color} 0 0%, ${trackColor} 0%)`;
@@ -1445,6 +1689,8 @@ function retryQuiz() {
     state.current = 0;
     state.answered = new Array(state.questions.length).fill(null);
     state.startTime = Date.now();
+  state.milestonesShown = new Set();
+  state.streak = 0;
     clearWrongQuestions();
     renderQuestion();
     goTo('quiz');
