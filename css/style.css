@@ -5,66 +5,66 @@
 }
 
 :root {
-  --ink: #241533;
-  --muted: #6f5f82;
-  --muted-soft: #b8abc7;
-  --line: #e2d6ee;
-  --paper: #fffdfb;
-  --bg: #f3edf7;
-  --accent: #c9973f;
-  --accent2: #6b3fa0;
-  --accent-soft: #d9b876;
-  --accent-soft-2: #c9b2e0;
-  --accent-tint: #faf1de;
-  --surface-2: #f8f4fb;
-  --surface-hover: #f5edfa;
-  --opt-bg: #f1e8f7;
-  --track-bg: #eadcf2;
+  --ink: #182033;
+  --muted: #687086;
+  --muted-soft: #aab0bd;
+  --line: #e5e7ef;
+  --paper: #ffffff;
+  --bg: #f5f6fb;
+  --accent: #4f46e5;
+  --accent2: #7c3aed;
+  --accent-soft: #a5b4fc;
+  --accent-soft-2: #c7d2fe;
+  --accent-tint: #eef2ff;
+  --surface-2: #f8f9fb;
+  --surface-hover: #f8f7ff;
+  --opt-bg: #f1f3f7;
+  --track-bg: #eceef3;
   --green: #0f9f6e;
   --red: #dc3f54;
-  --overlay: rgba(36, 15, 51, 0.5);
-  --shadow-sm: 0 8px 28px rgba(60, 20, 90, 0.08);
-  --shadow-md: 0 14px 45px rgba(60, 20, 90, 0.1);
-  --shadow: 0 18px 55px rgba(60, 20, 90, 0.14);
-  --body-radial-tint: #e8d6f5;
-  --quiz-bg-1: #f9f4fc;
-  --quiz-bg-2: #efe1f7;
-  --quiz-top-bg: rgba(255, 253, 251, 0.94);
-  --card-translucent: rgba(255, 253, 251, 0.92);
-  --qcard-overlay: linear-gradient(180deg, rgba(28, 10, 46, 0.66), rgba(28, 10, 46, 0.9));
-  --qcard-light-text: #f8f4fb;
-  --qcard-light-muted: #d8c7e6;
+  --overlay: rgba(15, 23, 42, 0.48);
+  --shadow-sm: 0 8px 28px rgba(30, 41, 59, 0.05);
+  --shadow-md: 0 14px 45px rgba(30, 41, 59, 0.07);
+  --shadow: 0 18px 55px rgba(30, 41, 59, 0.1);
+  --body-radial-tint: #ede9fe;
+  --quiz-bg-1: #f8f9fd;
+  --quiz-bg-2: #eef1f7;
+  --quiz-top-bg: rgba(255, 255, 255, 0.94);
+  --card-translucent: rgba(255, 255, 255, 0.92);
+  --qcard-overlay: linear-gradient(180deg, rgba(8, 11, 20, 0.66), rgba(8, 11, 20, 0.9));
+  --qcard-light-text: #f6f7fb;
+  --qcard-light-muted: #cdd2e6;
 
   color-scheme: light;
 }
 
 html[data-theme="dark"] {
-  --ink: #f3ecfa;
-  --muted: #b6a3c9;
-  --muted-soft: #7d6a92;
-  --line: #3a2a52;
-  --paper: #1c1229;
-  --bg: #100819;
-  --accent: #e0b563;
-  --accent2: #9b6fd1;
-  --accent-soft: #caa257;
-  --accent-soft-2: #6b4d94;
-  --accent-tint: #2a1d3d;
-  --surface-2: #221732;
-  --surface-hover: #2a1d3f;
-  --opt-bg: #241a37;
-  --track-bg: #2a1d3f;
+  --ink: #eef1f8;
+  --muted: #9aa3bb;
+  --muted-soft: #6b7390;
+  --line: #2a3348;
+  --paper: #171d2d;
+  --bg: #0b0f1a;
+  --accent: #818cf8;
+  --accent2: #a78bfa;
+  --accent-soft: #6366f1;
+  --accent-soft-2: #454b7c;
+  --accent-tint: #1f2540;
+  --surface-2: #1c2336;
+  --surface-hover: #212a44;
+  --opt-bg: #212a44;
+  --track-bg: #212a44;
   --green: #34d399;
   --red: #f87171;
-  --overlay: rgba(8, 3, 15, 0.75);
+  --overlay: rgba(2, 6, 16, 0.72);
   --shadow-sm: 0 8px 28px rgba(0, 0, 0, 0.35);
   --shadow-md: 0 14px 45px rgba(0, 0, 0, 0.4);
   --shadow: 0 18px 55px rgba(0, 0, 0, 0.5);
-  --body-radial-tint: #35204d;
-  --quiz-bg-1: #150c22;
-  --quiz-bg-2: #0d0715;
-  --quiz-top-bg: rgba(28, 18, 41, 0.9);
-  --card-translucent: rgba(28, 18, 41, 0.88);
+  --body-radial-tint: #241f3d;
+  --quiz-bg-1: #10162a;
+  --quiz-bg-2: #0b0f1a;
+  --quiz-top-bg: rgba(23, 29, 45, 0.9);
+  --card-translucent: rgba(23, 29, 45, 0.88);
   --qcard-overlay: linear-gradient(180deg, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.88));
 
   color-scheme: dark;
@@ -125,17 +125,15 @@ textarea {
   display: grid;
   place-items: center;
   color: #ffffff;
-  font-family: Cinzel, Manrope, serif;
   font-size: 16px;
-  font-weight: 700;
-  box-shadow: 0 10px 24px rgba(107, 63, 160, 0.3);
+  font-weight: 800;
+  box-shadow: 0 10px 24px rgba(79, 70, 229, 0.24);
 }
 
 .logo {
-  font-family: Cinzel, Manrope, serif;
   font-size: 16px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
+  font-weight: 800;
+  letter-spacing: -0.5px;
 }
 
 .logo span {
@@ -192,10 +190,9 @@ textarea {
 
 .page-heading h1,
 .section-title {
-  font-family: Cinzel, Manrope, serif;
   font-size: 16px;
   line-height: 1.4;
-  letter-spacing: 0.01em;
+  letter-spacing: 0;
   margin: 4px 0 8px;
 }
 
@@ -206,9 +203,8 @@ textarea {
 
 .eyebrow,
 .q-kicker {
-  font-family: Cinzel, Manrope, serif;
   font-size: 16px;
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: 0.12em;
   color: var(--accent);
   text-transform: uppercase;
@@ -293,10 +289,9 @@ textarea {
 }
 
 .card-title {
-  font-family: Cinzel, Manrope, serif;
   font-size: 16px;
-  font-weight: 700;
-  letter-spacing: 0;
+  font-weight: 800;
+  letter-spacing: -0.2px;
 }
 
 .card-meta {
@@ -467,18 +462,6 @@ textarea {
   margin-left: auto;
 }
 
-.streak-badge {
-  margin-left: 10px;
-  padding: 2px 9px;
-  border-radius: 999px;
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--accent);
-  background: var(--accent-tint);
-  border: 1px solid var(--accent-soft-2);
-  white-space: nowrap;
-}
-
 .prog-track {
   height: 4px;
   background: var(--track-bg);
@@ -550,7 +533,7 @@ textarea {
 }
 
 .question-shell.has-bg-image .q-kicker {
-  color: #e8c789;
+  color: #c7d2fe;
 }
 
 /* Let the background photo show through the option buttons too, instead
@@ -727,12 +710,6 @@ html[data-theme="dark"] .option-btn.wrong {
     stoneBorderGlow 1.3s ease-out;
 }
 
-/* The A/B/C/D badge stays tinted with the stone's color too, instead
-   of resetting to the generic correct-answer green. */
-.option-btn.correct.stone-active .opt-label {
-  background: var(--stone-mid, var(--green));
-}
-
 .option-btn.correct.stone-active .opt-label,
 .option-btn.correct.stone-active .opt-text {
   position: relative;
@@ -776,27 +753,27 @@ html[data-theme="dark"] .option-btn.wrong {
   margin: -7px 0 0 -7px;
   border-radius: 50%;
   border: 2px solid var(--stone-core, #fff);
-  box-shadow: 0 0 8px 1px var(--stone-mid, transparent);
+  box-shadow: 0 0 14px 2px var(--stone-mid, transparent);
   opacity: 0;
   animation: stoneRipple 0.85s cubic-bezier(0.2, 0.7, 0.3, 1) forwards;
 }
 
 @keyframes stoneCoreFlash {
   0% { opacity: 0; }
-  18% { opacity: 0.5; }
-  60% { opacity: 0.38; }
+  15% { opacity: 1; }
+  60% { opacity: 0.92; }
   100% { opacity: 0; }
 }
 
 @keyframes stoneRipple {
   0% {
-    opacity: 0.55;
+    opacity: 0.95;
     width: 14px;
     height: 14px;
     margin: -7px 0 0 -7px;
   }
   75% {
-    opacity: 0.22;
+    opacity: 0.4;
   }
   100% {
     opacity: 0;
@@ -808,39 +785,13 @@ html[data-theme="dark"] .option-btn.wrong {
 
 @keyframes stoneBorderGlow {
   0% { box-shadow: 0 0 0 0 transparent; }
-  20% { box-shadow: 0 0 13px 2px var(--stone-mid, transparent); }
-  55% { box-shadow: 0 0 9px 1px var(--stone-mid, transparent); }
+  20% { box-shadow: 0 0 22px 4px var(--stone-mid, transparent); }
+  55% { box-shadow: 0 0 16px 3px var(--stone-mid, transparent); }
   100% { box-shadow: 0 0 0 0 transparent; }
 }
 
 html[data-theme="dark"] .option-btn.correct.stone-active {
   border-color: var(--stone-mid, #34d399);
-}
-
-/* Higher specificity than both the light and dark theme's default
-   .correct background (which include an attribute/theme selector),
-   so the stone tint sticks as the resting state instead of fading
-   back to the generic correct-answer green. */
-html .option-btn.correct.stone-active {
-  background: linear-gradient(
-    135deg,
-    var(--stone-mid-tint, rgba(110, 231, 183, 0.22)),
-    var(--stone-edge-tint, rgba(52, 211, 153, 0.14))
-  );
-}
-
-/* Questions with a background photo behind them (.has-bg-image) use a
-   more specific selector for their own translucent correct/wrong
-   tint, which otherwise outranks the rule above and silences the
-   stone color. Match that specificity here so the stone tint always
-   wins, image or no image. */
-.question-shell.has-bg-image .option-btn.correct.stone-active {
-  background: linear-gradient(
-    135deg,
-    var(--stone-mid-tint, rgba(110, 231, 183, 0.32)),
-    var(--stone-edge-tint, rgba(52, 211, 153, 0.22))
-  );
-  border-color: var(--stone-mid, rgba(110, 231, 183, 0.7));
 }
 
 /* ── INFINITY STONE AMBIENT BACKGROUND GLOW ────────────────────
@@ -896,7 +847,7 @@ html .option-btn.correct.stone-active {
 
 @keyframes ambientGlowPulse {
   0% { opacity: 0; }
-  20% { opacity: 0.55; }
+  20% { opacity: 0.95; }
   100% { opacity: 0; }
 }
 
@@ -1001,47 +952,14 @@ html .option-btn.correct.stone-active {
 }
 
 .result-card {
-  position: relative;
   max-width: 850px;
   margin: 35px auto 0;
-  background:
-    var(--qcard-overlay),
-    url('../images/results-bg.jpg') center 30% / cover no-repeat,
-    var(--paper);
+  background: var(--paper);
   border: 1px solid var(--line);
   border-radius: 28px;
   padding: 36px;
   text-align: center;
   box-shadow: var(--shadow);
-  color: var(--qcard-light-text);
-}
-
-.result-chapter-label {
-  color: var(--qcard-light-muted);
-  font-size: 16px;
-}
-
-.result-stats {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 9px;
-  margin: 25px 0;
-}
-
-.stat-box {
-  padding: 14px 7px;
-  background: rgba(15, 8, 24, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(6px);
-  border-radius: 14px;
-  opacity: 0;
-}
-
-.stat-lbl {
-  font-size: 16px;
-  text-transform: uppercase;
-  color: var(--qcard-light-muted);
-  font-weight: 700;
 }
 
 .result-ring {
@@ -1053,10 +971,10 @@ html .option-btn.correct.stone-active {
   margin: auto;
   background: conic-gradient(
     var(--accent) 0 0%,
-    rgba(255, 255, 255, 0.18) 0%
+    var(--opt-bg) 0%
   );
-  border: 9px solid rgba(15, 8, 24, 0.55);
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.18);
+  border: 9px solid var(--paper);
+  box-shadow: 0 0 0 1px var(--line);
   transform: scale(0.85);
   opacity: 0;
 }
@@ -1079,6 +997,25 @@ html .option-btn.correct.stone-active {
 
 .result-card.animate-in .result-grade {
   animation: statFadeIn 0.45s ease 0.55s forwards;
+}
+
+.result-chapter-label {
+  color: var(--muted);
+  font-size: 16px;
+}
+
+.result-stats {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 9px;
+  margin: 25px 0;
+}
+
+.stat-box {
+  padding: 14px 7px;
+  background: var(--surface-2);
+  border-radius: 14px;
+  opacity: 0;
 }
 
 .result-card.animate-in .stat-box {
@@ -1113,6 +1050,13 @@ html .option-btn.correct.stone-active {
 
 .stat-num.bad {
   color: var(--red);
+}
+
+.stat-lbl {
+  font-size: 16px;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 700;
 }
 
 .result-actions {
@@ -1478,58 +1422,4 @@ html .option-btn.correct.stone-active {
 body,
 body * {
   font-size: 16px !important;
-}
-
-/* ── MILESTONE CELEBRATIONS (toggle + popup video) ────────────── */
-
-.milestone-toggle.is-off {
-  opacity: 0.45;
-  filter: grayscale(1);
-}
-
-.milestone-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 500;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-  background: var(--overlay);
-  backdrop-filter: blur(3px);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.28s ease;
-}
-
-.milestone-overlay.open {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.milestone-card {
-  width: min(440px, 100%);
-  border-radius: 22px;
-  overflow: hidden;
-  background: #000;
-  box-shadow: var(--shadow);
-  border: 2px solid transparent;
-  background-image:
-    linear-gradient(#000, #000),
-    linear-gradient(135deg, var(--accent), var(--accent2));
-  background-origin: border-box;
-  background-clip: padding-box, border-box;
-  transform: scale(0.88);
-  transition: transform 0.32s cubic-bezier(0.2, 0.8, 0.3, 1.1);
-}
-
-.milestone-overlay.open .milestone-card {
-  transform: scale(1);
-}
-
-.milestone-video {
-  display: block;
-  width: 100%;
-  aspect-ratio: 640 / 268;
-  background: #000;
 }
