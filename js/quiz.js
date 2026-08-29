@@ -695,10 +695,10 @@ function answer(chosenIndex) {
     saveWrongQuestion(question);
   }
 
-  // Every 20 correct answers in a row is its own small bonus moment —
+  // Every 10 correct answers in a row is its own small bonus moment —
   // full stone color/ripple/confetti + that stone's sound — separate
   // from the regular light chime the rest of the time.
-  const isStreakBonus = isCorrect && state.streak > 0 && state.streak % 20 === 0;
+  const isStreakBonus = isCorrect && state.streak > 0 && state.streak % 10 === 0;
 
   // If this correct answer is about to pop up a milestone clip, let that
   // clip's own audio carry the moment instead of layering another sound
@@ -834,7 +834,7 @@ function triggerStoneEffect(button, stone) {
   button.classList.add('stone-active');
 
   // The screen-wide ambient wash is reserved for milestones (their own
-  // popup handles it) so it's not called here — a 20-streak bonus stays
+  // popup handles it) so it's not called here — a streak bonus stays
   // contained to the capsule itself, not a full-screen flash.
 }
 
