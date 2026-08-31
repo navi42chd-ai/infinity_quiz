@@ -74,5 +74,21 @@ const SUBJECTS = [
         dataVar: 'chapter_tripartite_struggle'
       }
     ]
+  },
+  {
+    id: 'medieval-history',
+    label: 'Medieval History',
+    icon: '🏰',
+    color: '#6b3fa0',
+    colorLight: '#f1e7fb',
+    description: 'From Islamic invasions to the fall of the Delhi Sultanate.',
+    chapters: [
+      {
+        id: 'delhi-sultanate',
+        label: 'Delhi Sultanate',
+        subtitle: '304 one-liner based MCQs',
+        dataVar: 'chapter_delhi_sultanate'
+      }
+    ]
   }
 ];
