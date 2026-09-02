@@ -14,6 +14,7 @@ let state = {
   startTime: null,
   isReattempt: false,
   reviseInfo: null, // { from, to, loops, rangeSize } when in a custom revise session
+  lessonInfo: null, // { from, to, subqSize, loops, rangeSize } when in a lesson session
   bgImageCache: new Map(), // question index -> resolved background image URL (or null)
   bgPrefetchInFlight: new Set(), // question indices currently being prefetched
   milestonesShown: new Set() // which % milestones (20/40/60/80/100) have already
@@ -288,6 +289,7 @@ function startReattempt() {
   state.streak = 0;
   state.isReattempt = true;
   state.reviseInfo = null;
+  state.lessonInfo = null;
   state.bgImageCache = new Map();
   state.bgPrefetchInFlight = new Set();
 
@@ -456,6 +458,7 @@ function selectChapter(chapter) {
   state.streak = 0;
   state.isReattempt = false;
   state.reviseInfo = null;
+  state.lessonInfo = null;
   state.bgImageCache = new Map();
   state.bgPrefetchInFlight = new Set();
 
@@ -473,6 +476,8 @@ function renderQuestion() {
   const chapterLabelText = state.reviseInfo
     ? `${state.chapter.label} · Revise ${state.reviseInfo.from}-${state.reviseInfo.to}` +
       (state.reviseInfo.loops > 1 ? ` ×${state.reviseInfo.loops}` : '')
+    : state.lessonInfo
+    ? `${state.chapter.label} · Lesson ${state.lessonInfo.from}-${state.lessonInfo.to}`
     : state.chapter.label;
 
   // Breadcrumb
@@ -1099,10 +1104,158 @@ function submitRevise() {
   state.streak = 0;
   state.isReattempt = false;
   state.reviseInfo = { from, to, loops, rangeSize: rangeSlice.length };
+  state.lessonInfo = null;
   state.bgImageCache = new Map();
   state.bgPrefetchInFlight = new Set();
 
   closeReviseModal();
+  renderQuestion();
+  goTo('quiz');
+}
+
+// ── LESSON MODE (spaced-repetition study sessions) ────────────
+// Splits a range into fixed-size groups and studies them with built-in
+// cumulative review, e.g. for range 1-50, 10 per group, 5 loops:
+//   G1 ×5 → G2 ×5 → review(G1+G2) ×1 → G3 ×5 → review(G1..G3) ×1 →
+//   G4 ×5 → review(G1..G4) ×1 → G5 ×5 → review(G1..G5) ×1
+// The very first group has nothing to cumulatively review yet, so the
+// pattern only kicks in once a second group exists.
+
+const LESSON_MAX_GENERATED_QUESTIONS = 4000;
+
+function openLessonModal() {
+  const total = (state.chapterQuestions.length || state.questions.length);
+
+  document.getElementById('lesson-range-hint').textContent =
+    `This chapter has ${total} question${total === 1 ? '' : 's'}`;
+
+  const fromInput = document.getElementById('lesson-from');
+  const toInput = document.getElementById('lesson-to');
+  const subqInput = document.getElementById('lesson-subq');
+  const loopsInput = document.getElementById('lesson-loops');
+
+  fromInput.min = 1;
+  fromInput.max = total;
+  fromInput.value = 1;
+
+  toInput.min = 1;
+  toInput.max = total;
+  toInput.value = total;
+
+  subqInput.min = 1;
+  subqInput.value = 10;
+
+  loopsInput.min = 1;
+  loopsInput.value = 5;
+
+  document.getElementById('lesson-error').textContent = '';
+  document.getElementById('lesson-modal').classList.add('open');
+}
+
+function closeLessonModal() {
+  document.getElementById('lesson-modal').classList.remove('open');
+}
+
+function submitLesson() {
+  const base = state.chapterQuestions.length ? state.chapterQuestions : state.questions;
+  const total = base.length;
+  const errorEl = document.getElementById('lesson-error');
+
+  const from = parseInt(document.getElementById('lesson-from').value, 10);
+  const to = parseInt(document.getElementById('lesson-to').value, 10);
+  const subqSize = parseInt(document.getElementById('lesson-subq').value, 10);
+  const loops = parseInt(document.getElementById('lesson-loops').value, 10);
+
+  if (
+    !Number.isInteger(from) || !Number.isInteger(to) ||
+    from < 1 || to < 1 || from > total || to > total
+  ) {
+    errorEl.textContent = `Enter question numbers between 1 and ${total}.`;
+    return;
+  }
+
+  if (from > to) {
+    errorEl.textContent = '"From" must be less than or equal to "To".';
+    return;
+  }
+
+  if (!Number.isInteger(subqSize) || subqSize < 1) {
+    errorEl.textContent = 'Questions per group must be a whole number of 1 or more.';
+    return;
+  }
+
+  if (!Number.isInteger(loops) || loops < 1) {
+    errorEl.textContent = 'Loops must be a whole number of 1 or more.';
+    return;
+  }
+
+  if (loops > 20) {
+    errorEl.textContent = 'Please choose 20 loops or fewer.';
+    return;
+  }
+
+  const rangeSlice = base.slice(from - 1, to);
+
+  const groups = [];
+  for (let i = 0; i < rangeSlice.length; i += subqSize) {
+    groups.push(rangeSlice.slice(i, i + subqSize));
+  }
+  const groupCount = groups.length;
+
+  // Rough upper-bound estimate before actually building the array, so we
+  // can fail fast with a friendly message instead of freezing the tab.
+  const estimatedTotal =
+    groupCount * subqSize * loops +               // every group drilled `loops` times
+    groupCount * (groupCount + 1) / 2 * subqSize;  // every cumulative review pass
+  if (estimatedTotal > LESSON_MAX_GENERATED_QUESTIONS) {
+    errorEl.textContent =
+      'That combination would generate a huge session. Try a smaller range, fewer questions per group, or fewer loops.';
+    return;
+  }
+
+  let combined = [];
+
+  const pushRepeated = (questionList, times) => {
+    for (let rep = 0; rep < times; rep++) {
+      questionList.forEach(question => combined.push(randomiseQuestionOptions(question)));
+    }
+  };
+
+  const pushCumulativeReview = (uptoGroupIndexInclusive) => {
+    let cumulative = [];
+    for (let g = 0; g <= uptoGroupIndexInclusive; g++) {
+      cumulative = cumulative.concat(groups[g]);
+    }
+    combined = combined.concat(prepareQuestions(cumulative));
+  };
+
+  if (groupCount === 1) {
+    // Nothing to cumulatively review beyond the single group itself.
+    pushRepeated(groups[0], loops);
+  } else {
+    pushRepeated(groups[0], loops);       // first group
+    pushRepeated(groups[1], loops);       // second group
+    pushCumulativeReview(1);              // review of groups 1-2
+
+    for (let i = 2; i < groupCount; i++) {
+      pushRepeated(groups[i], loops);     // next new group
+      pushCumulativeReview(i);            // review of everything so far
+    }
+  }
+
+  state.questions = combined;
+  state.current = 0;
+  state.answered = new Array(combined.length).fill(null);
+  state.startTime = Date.now();
+  state.milestonesShown = new Set();
+  state.streak = 0;
+  state.isReattempt = false;
+  state.reviseInfo = null;
+  state.lessonInfo = { from, to, subqSize, loops, rangeSize: rangeSlice.length };
+  state.bgImageCache = new Map();
+  state.bgPrefetchInFlight = new Set();
+
+  closeLessonModal();
   renderQuestion();
   goTo('quiz');
 }
