@@ -450,6 +450,38 @@ textarea {
     padding: 7px 9px;
     gap: 0;
   }
+
+  /* The wrong-questions pill is position:fixed in the top-right corner,
+     so on narrow screens its full "Wrong questions" text sat wide enough
+     to sit on top of (and hide) the theme/milestone/Revise/Lesson/map
+     buttons underneath it. Collapse it to just the icon + count so it
+     stays out of their way. */
+  .btn-reattempt .btn-label {
+    display: none;
+  }
+
+  .btn-reattempt {
+    padding: 8px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+  }
+
+  .reattempt-count {
+    margin-left: 2px;
+  }
+
+  /* Even shrunk to icon-only, the fixed button still sits exactly where
+     the last header button (Question map / milestone toggle) would be.
+     Reserve a little space for it — only when it's actually showing
+     (body.reattempt-available, toggled in updateReattemptButton) — so
+     that last button shifts left instead of disappearing underneath it. */
+  body.reattempt-available .quiz-title-row,
+  body.reattempt-available .app-header {
+    padding-right: 58px;
+  }
 }
 
 .quiz-meta-row {
@@ -1354,6 +1386,10 @@ html .option-btn.correct.stone-active {
 }
 
 .revise-field-loops {
+  margin-top: 12px;
+}
+
+.lesson-field-row {
   margin-top: 12px;
 }
 
