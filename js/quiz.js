@@ -305,6 +305,15 @@ function startReattempt() {
  * Creates a shuffled copy of a question.
  * The original chapter data is not modified.
  */
+function shuffleArray(list) {
+  const shuffled = list.slice();
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const randomIndex = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[randomIndex]] = [shuffled[randomIndex], shuffled[i]];
+  }
+  return shuffled;
+}
+
 function randomiseQuestionOptions(question) {
   const optionObjects = question.opts.map((text, originalIndex) => ({
     text,
@@ -474,8 +483,7 @@ function renderQuestion() {
   const index = state.current;
 
   const chapterLabelText = state.reviseInfo
-    ? `${state.chapter.label} · Revise ${state.reviseInfo.from}-${state.reviseInfo.to}` +
-      (state.reviseInfo.loops > 1 ? ` ×${state.reviseInfo.loops}` : '')
+    ? `${state.chapter.label} · Revise ${state.reviseInfo.from}-${state.reviseInfo.to}`
     : state.lessonInfo
     ? `${state.chapter.label} · Lesson ${state.lessonInfo.from}-${state.lessonInfo.to}`
     : state.chapter.label;
@@ -1015,7 +1023,7 @@ function submitGoto() {
   renderQuestion();
 }
 
-// ── REVISE A RANGE (custom looped revision session) ──────────
+// ── REVISE A RANGE (shuffled single-pass revision session) ────
 
 function openReviseModal() {
   const total = (state.chapterQuestions.length || state.questions.length);
@@ -1025,7 +1033,6 @@ function openReviseModal() {
 
   const fromInput = document.getElementById('revise-from');
   const toInput = document.getElementById('revise-to');
-  const loopsInput = document.getElementById('revise-loops');
 
   fromInput.min = 1;
   fromInput.max = total;
@@ -1034,9 +1041,6 @@ function openReviseModal() {
   toInput.min = 1;
   toInput.max = total;
   toInput.value = total;
-
-  loopsInput.min = 1;
-  loopsInput.value = 1;
 
   document.getElementById('revise-error').textContent = '';
   document.getElementById('revise-modal').classList.add('open');
@@ -1053,7 +1057,6 @@ function submitRevise() {
 
   const from = parseInt(document.getElementById('revise-from').value, 10);
   const to = parseInt(document.getElementById('revise-to').value, 10);
-  const loops = parseInt(document.getElementById('revise-loops').value, 10);
 
   if (
     !Number.isInteger(from) || !Number.isInteger(to) ||
@@ -1068,33 +1071,13 @@ function submitRevise() {
     return;
   }
 
-  if (!Number.isInteger(loops) || loops < 1) {
-    errorEl.textContent = 'Loops must be a whole number of 1 or more.';
-    return;
-  }
-
-  if (loops > 20) {
-    errorEl.textContent = 'Please choose 20 loops or fewer.';
-    return;
-  }
-
   const rangeSlice = base.slice(from - 1, to);
-  let combined = [];
 
-  // Group repeats by question — Q1 x loops, then Q2 x loops, and so on —
-  // rather than repeating the whole range end-to-end. Each repetition
-  // gets a freshly shuffled option order, so drilling the same question
-  // repeatedly doesn't let you just memorise the button position.
-  rangeSlice.forEach(question => {
-    for (let rep = 0; rep < loops; rep++) {
-      combined.push(randomiseQuestionOptions(question));
-    }
-  });
-
-  // Finish with one full chronological pass through the range, so
-  // everything gets reviewed together at least once after the drilling
-  // above.
-  combined = combined.concat(prepareQuestions(rangeSlice));
+  // Shuffle the ORDER of the questions themselves (not just each
+  // question's options) so they come up one by one in random order,
+  // not chronologically — each question appears exactly once.
+  const shuffledOrder = shuffleArray(rangeSlice);
+  const combined = shuffledOrder.map(question => randomiseQuestionOptions(question));
 
   state.questions = combined;
   state.current = 0;
@@ -1103,7 +1086,7 @@ function submitRevise() {
   state.milestonesShown = new Set();
   state.streak = 0;
   state.isReattempt = false;
-  state.reviseInfo = { from, to, loops, rangeSize: rangeSlice.length };
+  state.reviseInfo = { from, to, rangeSize: rangeSlice.length };
   state.lessonInfo = null;
   state.bgImageCache = new Map();
   state.bgPrefetchInFlight = new Set();
