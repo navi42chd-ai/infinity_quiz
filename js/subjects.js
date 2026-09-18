@@ -90,5 +90,21 @@ const SUBJECTS = [
         dataVar: 'chapter_delhi_sultanate'
       }
     ]
+  },
+  {
+    id: 'modern-history',
+    label: 'Modern History',
+    icon: '⚓',
+    color: '#c9973f',
+    colorLight: '#faf1de',
+    description: 'The arrival of European powers and their rise to dominance in India.',
+    chapters: [
+      {
+        id: 'advent-of-europeans',
+        label: 'Advent of Europeans',
+        subtitle: '224 one-liner based MCQs',
+        dataVar: 'chapter_advent_of_europeans'
+      }
+    ]
   }
 ];
