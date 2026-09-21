@@ -104,6 +104,12 @@ const SUBJECTS = [
         label: 'Advent of Europeans',
         subtitle: '224 one-liner based MCQs',
         dataVar: 'chapter_advent_of_europeans'
+      },
+      {
+        id: 'socio-religious-reforms',
+        label: 'Socio Religious Reforms',
+        subtitle: '191 one-liner based MCQs',
+        dataVar: 'chapter_socio_religious_reforms'
       }
     ]
   }
