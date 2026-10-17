@@ -112,5 +112,21 @@ const SUBJECTS = [
         dataVar: 'chapter_socio_religious_reforms'
       }
     ]
+  },
+  {
+    id: 'supreme-court',
+    label: 'Supreme Court',
+    icon: '⚖️',
+    color: '#1e3a8a',
+    colorLight: '#e6ecfa',
+    description: 'Constitutional provisions, appointments, jurisdiction and powers of the apex court.',
+    chapters: [
+      {
+        id: 'provisions',
+        label: 'Provisions',
+        subtitle: '84 one-liner based MCQs',
+        dataVar: 'chapter_sc_provisions'
+      }
+    ]
   }
 ];
