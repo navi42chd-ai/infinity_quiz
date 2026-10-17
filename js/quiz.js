@@ -549,6 +549,9 @@ function renderQuestion() {
 
 // ── DYNAMIC QUESTION-CARD BACKGROUND IMAGE ───────────────────
 
+// Temporarily disabled. Set to true to bring back per-question background photos.
+const QUESTION_BACKGROUNDS_ENABLED = false;
+
 /**
  * Tries several search candidates for a question IN PARALLEL (rather than
  * one-by-one) and returns the first successful thumbnail URL, preferring
@@ -617,6 +620,11 @@ async function resolveBackgroundImageUrl(question, maxCandidates = 8) {
 function applyQuestionBackground(question, index) {
   const shell = document.querySelector('.question-shell');
   if (!shell) return;
+
+  if (!QUESTION_BACKGROUNDS_ENABLED) {
+    setQuestionShellBackground(null);
+    return;
+  }
 
   const cached = state.bgImageCache.get(index);
 
