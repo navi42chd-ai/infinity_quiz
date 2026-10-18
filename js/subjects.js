@@ -124,8 +124,24 @@ const SUBJECTS = [
       {
         id: 'provisions',
         label: 'Provisions',
-        subtitle: '84 one-liner based MCQs',
+        subtitle: '113 one-liner based MCQs',
         dataVar: 'chapter_sc_provisions'
+      }
+    ]
+  },
+  {
+    id: 'english',
+    label: 'English',
+    icon: '📖',
+    color: '#0f766e',
+    colorLight: '#e0f5f2',
+    description: 'Idioms, phrases and vocabulary most asked in SSC exams.',
+    chapters: [
+      {
+        id: 'idioms-1',
+        label: 'Idioms 1',
+        subtitle: '185 one-liner based MCQs',
+        dataVar: 'chapter_idioms_1'
       }
     ]
   }
