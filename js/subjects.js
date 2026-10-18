@@ -148,6 +148,12 @@ const SUBJECTS = [
         label: 'Idioms 1',
         subtitle: '185 one-liner based MCQs',
         dataVar: 'chapter_idioms_1'
+      },
+      {
+        id: 'idioms-2',
+        label: 'Idioms 2',
+        subtitle: '145 one-liner based MCQs',
+        dataVar: 'chapter_idioms_2'
       }
     ]
   }
