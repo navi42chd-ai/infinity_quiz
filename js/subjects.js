@@ -126,6 +126,12 @@ const SUBJECTS = [
         label: 'Provisions',
         subtitle: '113 one-liner based MCQs',
         dataVar: 'chapter_sc_provisions'
+      },
+      {
+        id: 'provisions-2',
+        label: 'Provisions 2',
+        subtitle: '151 one-liner based MCQs',
+        dataVar: 'chapter_sc_provisions_2'
       }
     ]
   },
