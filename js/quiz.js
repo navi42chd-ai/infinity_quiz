@@ -173,7 +173,8 @@ function applyTheme(theme) {
   document.documentElement.setAttribute('data-theme', theme);
 
   document.querySelectorAll('.theme-toggle:not(.milestone-toggle)').forEach(btn => {
-    btn.textContent = theme === 'dark' ? '☀️' : '🌙';
+    btn.querySelector('.theme-icon').textContent = theme === 'dark' ? '☀️' : '🌙';
+    btn.querySelector('.theme-label').textContent = theme === 'dark' ? 'Light mode' : 'Dark mode';
   });
 
   const themeColorMeta = document.querySelector('meta[name="theme-color"]');
@@ -210,6 +211,8 @@ function applyMilestonesToggle(enabled) {
   document.querySelectorAll('.milestone-toggle').forEach(btn => {
     btn.classList.toggle('is-off', !enabled);
     btn.setAttribute('aria-pressed', String(enabled));
+    btn.querySelector('.milestone-label').textContent =
+      enabled ? 'Celebrations: on' : 'Celebrations: off';
     btn.title = enabled
       ? 'Milestone celebrations: on (tap to turn off)'
       : 'Milestone celebrations: off (tap to turn on)';
@@ -394,6 +397,31 @@ function updateReattemptButton() {
   button.style.display = count > 0 ? 'inline-flex' : 'none';
   document.getElementById('reattempt-count').textContent = count;
   document.body.classList.toggle('reattempt-available', count > 0);
+
+  // On phones the floating pill is hidden and this lives in the ⋮ menus.
+  document.querySelectorAll('.menu-reattempt').forEach(item => {
+    item.classList.toggle('is-empty', count === 0);
+    item.querySelector('.menu-reattempt-count').textContent = count;
+  });
+}
+
+// ── TOP MENU (phones) ────────────────────────────────────────
+// On narrow screens the header/toolbar buttons collapse behind a ⋮ toggle.
+// On wider screens the wrapper is display:contents, so nothing changes.
+
+function closeTopMenus(except) {
+  document.querySelectorAll('.top-menu.open').forEach(menu => {
+    if (menu === except) return;
+    menu.classList.remove('open');
+    menu.querySelector('.top-menu-toggle').setAttribute('aria-expanded', 'false');
+  });
+}
+
+function toggleTopMenu(toggle) {
+  const menu = toggle.closest('.top-menu');
+  closeTopMenus(menu);
+  const open = menu.classList.toggle('open');
+  toggle.setAttribute('aria-expanded', String(open));
 }
 
 function findSavedQuestion(savedQuestion) {
@@ -493,6 +521,7 @@ function prepareQuestions(questions) {
 // ── SCREEN NAVIGATION ────────────────────────────────────────
 
 function goTo(screen) {
+  closeTopMenus();
   document.querySelectorAll('.screen').forEach(screenElement => {
     screenElement.classList.remove('active');
   });
@@ -1813,8 +1842,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  // Close the ⋮ menu after picking an item or tapping anywhere outside it.
+  // Theme/celebration toggles keep it open so the new state is visible.
+  document.addEventListener('click', event => {
+    const item = event.target.closest('.top-menu-items button');
+    if (item && !item.classList.contains('theme-toggle')) {
+      closeTopMenus();
+    } else if (!event.target.closest('.top-menu')) {
+      closeTopMenus();
+    }
+  });
+
   document.addEventListener('keydown', event => {
     if (event.key !== 'Escape') return;
+
+    closeTopMenus();
 
     if (imageModal.classList.contains('open')) {
       closeImageModal();

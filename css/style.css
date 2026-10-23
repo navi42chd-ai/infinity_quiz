@@ -501,46 +501,149 @@ textarea {
   text-align: center;
 }
 
-@media (max-width: 420px) {
-  .btn-goto .btn-label {
+/* ── Top menu ──────────────────────────────────────────────────
+   Wide screens: the wrapper and list are display:contents, so the
+   buttons sit in the header/toolbar row exactly as before.
+   Phones (≤700px): they collapse behind a ⋮ toggle into a dropdown,
+   and the floating wrong-questions pill moves into the menu too. */
+.top-menu,
+.top-menu-items {
+  display: contents;
+}
+
+.top-menu-toggle,
+.menu-only,
+.menu-label {
+  display: none;
+}
+
+@media (max-width: 700px) {
+  .top-menu {
+    position: relative;
+    display: block;
+    flex: 0 0 auto;
+    margin-left: auto;
+  }
+
+  .top-menu-toggle {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--line);
+    border-radius: 11px;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 22px;
+    font-weight: 800;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .top-menu.open .top-menu-toggle {
+    border-color: var(--accent-soft);
+    background: var(--surface-hover);
+  }
+
+  .top-menu-items {
+    display: none;
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    z-index: 90;
+    min-width: 220px;
+    flex-direction: column;
+    gap: 2px;
+    padding: 6px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--paper);
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.18);
+  }
+
+  .top-menu.open .top-menu-items {
+    display: flex;
+  }
+
+  /* Every item becomes a full-width row: icon, label, then any count. */
+  .top-menu-items > button,
+  .top-menu-items > .btn-goto,
+  .top-menu-items > .theme-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    height: auto;
+    margin: 0;
+    padding: 10px 12px;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--ink);
+    font-size: 16px;
+    font-weight: 700;
+    text-align: left;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+
+  .top-menu-items > button:hover:not(:disabled) {
+    background: var(--surface-hover);
+  }
+
+  .top-menu-items .menu-label,
+  .top-menu-items .btn-label {
+    display: inline;
+  }
+
+  .top-menu-items .btn-starred .btn-label:empty {
+    display: inline;
+  }
+
+  .top-menu-items .btn-starred .btn-label:empty::before {
+    content: 'Starred';
+  }
+
+  .top-menu-items > .btn-starred.is-hidden + .btn-revise {
+    margin-left: 0;
+  }
+
+  /* Keep the dropdown above the question card below the toolbar. */
+  .quiz-top {
+    position: relative;
+    z-index: 5;
+  }
+
+  .top-menu-items .reattempt-count,
+  .top-menu-items .starred-count {
+    margin-left: auto;
+  }
+
+  .top-menu-items .menu-reattempt {
+    color: #be123c;
+  }
+
+  .top-menu-items .menu-reattempt.is-empty,
+  .top-menu-items .btn-starred.is-hidden {
     display: none;
   }
 
-  .btn-goto {
-    padding: 7px 9px;
-    gap: 0;
+  .top-menu-items .btn-starred.is-active {
+    background: rgba(245, 179, 1, 0.16);
   }
 
-  /* The wrong-questions pill is position:fixed in the top-right corner,
-     so on narrow screens its full "Wrong questions" text sat wide enough
-     to sit on top of (and hide) the theme/milestone/Revise/Lesson/map
-     buttons underneath it. Collapse it to just the icon + count so it
-     stays out of their way. */
-  .btn-reattempt .btn-label {
-    display: none;
+  .top-menu-items .milestone-toggle.is-off {
+    opacity: 1;
+    filter: none;
+  }
+
+  .top-menu-items .milestone-toggle.is-off > span:first-child {
+    opacity: 0.45;
+    filter: grayscale(1);
   }
 
   .btn-reattempt {
-    padding: 8px;
-    border-radius: 50%;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0;
-  }
-
-  .reattempt-count {
-    margin-left: 2px;
-  }
-
-  /* Even shrunk to icon-only, the fixed button still sits exactly where
-     the last header button (Question map / milestone toggle) would be.
-     Reserve a little space for it — only when it's actually showing
-     (body.reattempt-available, toggled in updateReattemptButton) — so
-     that last button shifts left instead of disappearing underneath it. */
-  body.reattempt-available .quiz-title-row,
-  body.reattempt-available .app-header {
-    padding-right: 58px;
+    display: none !important;
   }
 }
 
