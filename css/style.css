@@ -248,6 +248,32 @@ textarea {
   background: var(--surface-hover);
 }
 
+.q-kicker-actions {
+  flex: 0 0 auto;
+  display: inline-flex;
+  gap: 8px;
+}
+
+.btn-star {
+  padding: 6px 11px;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.btn-starred .btn-label:empty {
+  display: none;
+}
+
+.btn-star.is-starred {
+  border-color: #f5b301;
+  background: rgba(245, 179, 1, 0.16);
+  color: #b07d00;
+}
+
+[data-theme="dark"] .btn-star.is-starred {
+  color: #ffd257;
+}
+
 .card-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -439,6 +465,40 @@ textarea {
 
 .btn-goto + .btn-goto {
   margin-left: 0;
+}
+
+/* The Starred button sits first in the group, so it takes the auto
+   margin; when it's hidden (wrong-questions session) Revise takes it back. */
+.btn-starred {
+  margin-left: auto;
+}
+
+.btn-starred.is-hidden {
+  display: none;
+}
+
+.btn-starred.is-hidden + .btn-revise {
+  margin-left: auto;
+}
+
+.btn-starred:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.btn-starred.is-active {
+  border-color: #f5b301;
+  background: rgba(245, 179, 1, 0.16);
+}
+
+.starred-count {
+  min-width: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: rgba(245, 179, 1, 0.22);
+  font-size: 13px;
+  line-height: 20px;
+  text-align: center;
 }
 
 @media (max-width: 420px) {

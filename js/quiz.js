@@ -15,6 +15,7 @@ let state = {
   isReattempt: false,
   reviseInfo: null, // { from, to, loops, rangeSize } when in a custom revise session
   lessonInfo: null, // { from, to, subqSize, loops, rangeSize } when in a lesson session
+  starredInfo: null, // { count } when practising the chapter's starred questions
   bgImageCache: new Map(), // question index -> resolved background image URL (or null)
   bgPrefetchInFlight: new Set(), // question indices currently being prefetched
   milestonesShown: new Set() // which % milestones (20/40/60/80/100) have already
@@ -24,6 +25,147 @@ let state = {
 const WRONG_QUESTIONS_KEY = 'ssc-quiz-wrong-questions-v1';
 const THEME_KEY = 'quizhub-theme';
 const MILESTONES_KEY = 'quizhub-milestones-enabled';
+const STARRED_KEY = 'quizhub-starred-v1';
+
+// ── STARRED QUESTIONS (per chapter) ──────────────────────────
+// Stored as { "subjectId/chapterId": [questionIndex, ...] }, keyed by each
+// question's position in its chapter data file, so a star survives option
+// shuffling and shows up again whichever mode (chapter, revise, lesson,
+// wrong-questions) the question is met in.
+
+function getStarredMap() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(STARRED_KEY) || '{}');
+    return saved && typeof saved === 'object' && !Array.isArray(saved) ? saved : {};
+  } catch (error) {
+    return {};
+  }
+}
+
+function saveStarredMap(map) {
+  try {
+    localStorage.setItem(STARRED_KEY, JSON.stringify(map));
+  } catch (error) {
+    // localStorage unavailable — stars just won't persist
+  }
+}
+
+function starredKey(subjectId, chapterId) {
+  return `${subjectId}/${chapterId}`;
+}
+
+function getStarredIndices(subjectId, chapterId) {
+  const list = getStarredMap()[starredKey(subjectId, chapterId)];
+  return Array.isArray(list) ? list : [];
+}
+
+function isQuestionStarred(question) {
+  if (!question || question.sourceQuestionIndex === undefined) return false;
+  return getStarredIndices(question.sourceSubjectId, question.sourceChapterId)
+    .includes(question.sourceQuestionIndex);
+}
+
+function toggleStar() {
+  const question = state.questions[state.current];
+  if (!question || question.sourceQuestionIndex === undefined) return;
+
+  const map = getStarredMap();
+  const key = starredKey(question.sourceSubjectId, question.sourceChapterId);
+  const list = Array.isArray(map[key]) ? map[key] : [];
+  const position = list.indexOf(question.sourceQuestionIndex);
+
+  if (position === -1) {
+    list.push(question.sourceQuestionIndex);
+    list.sort((a, b) => a - b);
+  } else {
+    list.splice(position, 1);
+  }
+
+  if (list.length) {
+    map[key] = list;
+  } else {
+    delete map[key];
+  }
+
+  saveStarredMap(map);
+  updateStarButton();
+  updateStarredButton();
+}
+
+function updateStarButton() {
+  const button = document.getElementById('btn-star');
+  if (!button) return;
+
+  const starred = isQuestionStarred(state.questions[state.current]);
+  button.classList.toggle('is-starred', starred);
+  button.setAttribute('aria-pressed', String(starred));
+  button.textContent = starred ? '★' : '☆';
+  button.title = starred
+    ? 'Remove this question from the starred list'
+    : 'Star this question to revise later';
+}
+
+// The toolbar button opens the current chapter's starred list; while that
+// list is open it becomes the way back to the full chapter. It's hidden in
+// the wrong-questions session, which isn't tied to a single chapter.
+function updateStarredButton() {
+  const button = document.getElementById('btn-starred');
+  if (!button) return;
+
+  const inChapter = !state.isReattempt && state.subject && state.chapter;
+  button.classList.toggle('is-hidden', !inChapter);
+  if (!inChapter) return;
+
+  const count = getStarredIndices(state.subject.id, state.chapter.id).length;
+  const active = Boolean(state.starredInfo);
+
+  document.getElementById('starred-count').textContent = count;
+  // Icon + count is enough to open the list; while it's open, a label makes
+  // the way back to the full chapter obvious.
+  document.getElementById('btn-starred-label').textContent = active ? 'All questions' : '';
+  button.classList.toggle('is-active', active);
+  button.disabled = !active && count === 0;
+  button.title = active
+    ? 'Back to all questions in this chapter'
+    : count === 0
+      ? 'Star questions to revise them here'
+      : `Practise this chapter's ${count} starred question${count === 1 ? '' : 's'}`;
+}
+
+function toggleStarredSession() {
+  if (state.starredInfo) {
+    selectChapter(state.chapter);
+    return;
+  }
+  startStarredSession();
+}
+
+function startStarredSession() {
+  const starred = new Set(getStarredIndices(state.subject.id, state.chapter.id));
+  const base = state.chapterQuestions.length ? state.chapterQuestions : state.questions;
+  const questions = base.filter(question => starred.has(question.sourceQuestionIndex));
+
+  if (!questions.length) {
+    updateStarredButton();
+    return;
+  }
+
+  state.questions = prepareQuestions(questions);
+  state.current = 0;
+  state.answered = new Array(state.questions.length).fill(null);
+  state.startTime = Date.now();
+  state.milestonesShown = new Set();
+  state.streak = 0;
+  state.isReattempt = false;
+  state.reviseInfo = null;
+  state.lessonInfo = null;
+  state.starredInfo = { count: questions.length };
+  state.bgImageCache = new Map();
+  state.bgPrefetchInFlight = new Set();
+
+  renderQuestion();
+  goTo('quiz');
+}
 
 // ── THEME (light / dark) ─────────────────────────────────────
 
@@ -290,6 +432,7 @@ function startReattempt() {
   state.isReattempt = true;
   state.reviseInfo = null;
   state.lessonInfo = null;
+  state.starredInfo = null;
   state.bgImageCache = new Map();
   state.bgPrefetchInFlight = new Set();
 
@@ -468,6 +611,7 @@ function selectChapter(chapter) {
   state.isReattempt = false;
   state.reviseInfo = null;
   state.lessonInfo = null;
+  state.starredInfo = null;
   state.bgImageCache = new Map();
   state.bgPrefetchInFlight = new Set();
 
@@ -486,6 +630,8 @@ function renderQuestion() {
     ? `${state.chapter.label} · Revise ${state.reviseInfo.from}-${state.reviseInfo.to}`
     : state.lessonInfo
     ? `${state.chapter.label} · Lesson ${state.lessonInfo.from}-${state.lessonInfo.to}`
+    : state.starredInfo
+    ? `${state.chapter.label} · Starred`
     : state.chapter.label;
 
   // Breadcrumb
@@ -544,6 +690,8 @@ function renderQuestion() {
   }
 
   updateNavButtons();
+  updateStarButton();
+  updateStarredButton();
   applyQuestionBackground(question, index);
 }
 
@@ -1096,6 +1244,7 @@ function submitRevise() {
   state.isReattempt = false;
   state.reviseInfo = { from, to, rangeSize: rangeSlice.length };
   state.lessonInfo = null;
+  state.starredInfo = null;
   state.bgImageCache = new Map();
   state.bgPrefetchInFlight = new Set();
 
@@ -1243,6 +1392,7 @@ function submitLesson() {
   state.isReattempt = false;
   state.reviseInfo = null;
   state.lessonInfo = { from, to, subqSize, loops, rangeSize: rangeSlice.length };
+  state.starredInfo = null;
   state.bgImageCache = new Map();
   state.bgPrefetchInFlight = new Set();
 
@@ -1747,7 +1897,11 @@ async function endQuiz() {
     grade.color;
 
   document.getElementById('res-chapter').textContent =
-    state.isReattempt ? 'Reattempted wrong questions' : state.chapter.label;
+    state.isReattempt
+      ? 'Reattempted wrong questions'
+      : state.starredInfo
+        ? `${state.chapter.label} · Starred questions`
+        : state.chapter.label;
 
   document.getElementById('res-correct').textContent =
     correct;
@@ -1836,6 +1990,11 @@ function retryQuiz() {
     clearWrongQuestions();
     renderQuestion();
     goTo('quiz');
+    return;
+  }
+
+  if (state.starredInfo) {
+    startStarredSession();
     return;
   }
 
