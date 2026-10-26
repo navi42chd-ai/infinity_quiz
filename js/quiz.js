@@ -16,6 +16,7 @@ let state = {
   reviseInfo: null, // { from, to, loops, rangeSize } when in a custom revise session
   lessonInfo: null, // { from, to, subqSize, loops, rangeSize } when in a lesson session
   starredInfo: null, // { count } when practising the chapter's starred questions
+  testInfo: null, // { order, from, to } when taking a test (no feedback until the end)
   bgImageCache: new Map(), // question index -> resolved background image URL (or null)
   bgPrefetchInFlight: new Set(), // question indices currently being prefetched
   milestonesShown: new Set() // which % milestones (20/40/60/80/100) have already
@@ -160,6 +161,7 @@ function startStarredSession() {
   state.reviseInfo = null;
   state.lessonInfo = null;
   state.starredInfo = { count: questions.length };
+  state.testInfo = null;
   state.bgImageCache = new Map();
   state.bgPrefetchInFlight = new Set();
 
@@ -311,7 +313,7 @@ async function queueMilestone(pct) {
 // thresholds (not 100 — that one's handled separately, right before
 // the results screen) and queues any newly-crossed milestone.
 function checkMilestones() {
-  if (!getMilestonesEnabled()) return;
+  if (!getMilestonesEnabled() || state.testInfo) return;
 
   const total = state.questions.length;
   if (total === 0) return;
@@ -461,6 +463,7 @@ function startReattempt() {
   state.reviseInfo = null;
   state.lessonInfo = null;
   state.starredInfo = null;
+  state.testInfo = null;
   state.bgImageCache = new Map();
   state.bgPrefetchInFlight = new Set();
 
@@ -641,6 +644,7 @@ function selectChapter(chapter) {
   state.reviseInfo = null;
   state.lessonInfo = null;
   state.starredInfo = null;
+  state.testInfo = null;
   state.bgImageCache = new Map();
   state.bgPrefetchInFlight = new Set();
 
@@ -661,7 +665,11 @@ function renderQuestion() {
     ? `${state.chapter.label} · Lesson ${state.lessonInfo.from}-${state.lessonInfo.to}`
     : state.starredInfo
     ? `${state.chapter.label} · Starred`
+    : state.testInfo
+    ? `${state.chapter.label} · Test`
     : state.chapter.label;
+
+  document.getElementById('screen-quiz').classList.toggle('is-test', Boolean(state.testInfo));
 
   // Breadcrumb
   document.getElementById('quiz-breadcrumb').innerHTML = `
@@ -883,6 +891,11 @@ function willTriggerImmediateMilestone() {
 function answer(chosenIndex) {
   const question = state.questions[state.current];
   const isCorrect = chosenIndex === question.ans;
+
+  if (state.testInfo) {
+    answerInTest(chosenIndex, question, isCorrect);
+    return;
+  }
 
   state.answered[state.current] = chosenIndex;
 
@@ -1146,6 +1159,17 @@ function spawnConfetti(originElement, stone) {
 function updateNavButtons() {
   const index = state.current;
   const total = state.questions.length;
+  const nextButton = document.getElementById('btn-next');
+
+  // In a test there's no going back and Next stays disabled — choosing an
+  // answer is what moves the test forward (see answerInTest).
+  nextButton.disabled = Boolean(state.testInfo);
+  if (state.testInfo) {
+    document.getElementById('btn-prev').style.display = 'none';
+    nextButton.style.display = 'inline-flex';
+    document.getElementById('btn-end').style.display = 'none';
+    return;
+  }
 
   document.getElementById('btn-prev').style.display =
     index > 0 ? 'inline-flex' : 'none';
@@ -1274,12 +1298,182 @@ function submitRevise() {
   state.reviseInfo = { from, to, rangeSize: rangeSlice.length };
   state.lessonInfo = null;
   state.starredInfo = null;
+  state.testInfo = null;
   state.bgImageCache = new Map();
   state.bgPrefetchInFlight = new Set();
 
   closeReviseModal();
   renderQuestion();
   goTo('quiz');
+}
+
+// ── TEST MODE ────────────────────────────────────────────────
+// A range is asked in random or chapter order with no feedback: picking an
+// option briefly marks it, then moves on. Results (and a numbered list of
+// the missed questions as one-liners) only appear at the end.
+
+const TEST_ADVANCE_DELAY_MS = 350;
+
+function openTestModal() {
+  const total = (state.chapterQuestions.length || state.questions.length);
+
+  const fromInput = document.getElementById('test-from');
+  const toInput = document.getElementById('test-to');
+
+  fromInput.min = 1;
+  fromInput.max = total;
+  fromInput.value = 1;
+
+  toInput.min = 1;
+  toInput.max = total;
+  toInput.value = total;
+
+  document.getElementById('test-error').textContent = '';
+  document.getElementById('test-modal').classList.add('open');
+}
+
+function closeTestModal() {
+  document.getElementById('test-modal').classList.remove('open');
+}
+
+function submitTest(order) {
+  const base = state.chapterQuestions.length ? state.chapterQuestions : state.questions;
+  const total = base.length;
+  const errorEl = document.getElementById('test-error');
+
+  const from = parseInt(document.getElementById('test-from').value, 10);
+  const to = parseInt(document.getElementById('test-to').value, 10);
+
+  if (
+    !Number.isInteger(from) || !Number.isInteger(to) ||
+    from < 1 || to < 1 || from > total || to > total
+  ) {
+    errorEl.textContent = `Enter question numbers between 1 and ${total}.`;
+    return;
+  }
+
+  if (from > to) {
+    errorEl.textContent = '"From" must be less than or equal to "To".';
+    return;
+  }
+
+  closeTestModal();
+  startTest({ order, from, to });
+}
+
+function startTest({ order, from, to }) {
+  const base = state.chapterQuestions.length ? state.chapterQuestions : state.questions;
+  const rangeSlice = base.slice(from - 1, to);
+  const ordered = order === 'random' ? shuffleArray(rangeSlice) : rangeSlice;
+
+  state.questions = prepareQuestions(ordered);
+  state.current = 0;
+  state.answered = new Array(state.questions.length).fill(null);
+  state.startTime = Date.now();
+  state.milestonesShown = new Set();
+  state.streak = 0;
+  state.isReattempt = false;
+  state.reviseInfo = null;
+  state.lessonInfo = null;
+  state.starredInfo = null;
+  state.testInfo = { order, from, to };
+  state.bgImageCache = new Map();
+  state.bgPrefetchInFlight = new Set();
+
+  renderQuestion();
+  goTo('quiz');
+}
+
+function answerInTest(chosenIndex, question, isCorrect) {
+  if (state.answered[state.current] !== null) return;
+
+  state.answered[state.current] = chosenIndex;
+  if (!isCorrect) {
+    saveWrongQuestion(question);
+  }
+
+  // Mark the pick neutrally (no right/wrong colours) and lock the options.
+  document.querySelectorAll('.option-btn').forEach((button, optionIndex) => {
+    button.disabled = true;
+    button.classList.toggle('picked', optionIndex === chosenIndex);
+  });
+
+  const attempted = state.answered.filter(answer => answer !== null).length;
+  document.getElementById('prog-attempted').textContent = `${attempted} attempted`;
+
+  const answeredIndex = state.current;
+  setTimeout(() => {
+    // Ignore if the person left the test in the meantime.
+    if (!state.testInfo || state.current !== answeredIndex || state.screen !== 'quiz') return;
+
+    if (state.current < state.questions.length - 1) {
+      state.current++;
+      renderQuestion();
+    } else {
+      endQuiz();
+    }
+  }, TEST_ADVANCE_DELAY_MS);
+}
+
+/**
+ * Turns a missed MCQ into a one-line fact using its correct answer:
+ * fills a ‘______’ blank, follows a trailing colon, or otherwise appends
+ * the answer after a dash. Returns HTML with the answer in bold.
+ */
+const ONE_LINER_PREFIXES = [
+  /^Select the most appropriate meaning of the (?:idiom|phrase|word)\s*:\s*/i,
+  /^Fill in the blank\s*:\s*/i
+];
+
+function toOneLiner(question) {
+  const text = ONE_LINER_PREFIXES.reduce((t, prefix) => t.replace(prefix, ''), question.q.trim());
+  const answerHtml = `<strong>${escapeHtml(question.opts[question.ans])}</strong>`;
+  const blank = /_{3,}/;
+
+  if (blank.test(text)) {
+    const [before, ...rest] = text.split(blank);
+    return escapeHtml(before) + answerHtml + escapeHtml(rest.join('______'));
+  }
+
+  if (text.endsWith(':')) {
+    return `${escapeHtml(text)} ${answerHtml}`;
+  }
+
+  return `${escapeHtml(text)} — ${answerHtml}`;
+}
+
+function getTestWrongAnswers() {
+  return state.questions
+    .map((question, index) => ({ question, chosen: state.answered[index] }))
+    .filter(({ question, chosen }) => chosen !== null && chosen !== question.ans);
+}
+
+function showWrongList() {
+  const wrong = getTestWrongAnswers();
+
+  document.getElementById('wronglist-breadcrumb').innerHTML = `
+    <span class="bc-link" onclick="goSubjects()">Subjects</span>
+    <span class="bc-sep">/</span>
+    <span class="bc-link" onclick="goChapters()">${escapeHtml(state.subject.label)}</span>
+    <span class="bc-sep">/</span>
+    <span class="bc-link" onclick="goTo('result')">Results</span>
+    <span class="bc-sep">/</span>
+    <span class="bc-current">Wrong answers</span>
+  `;
+
+  document.getElementById('wrong-list-sub').textContent =
+    `${state.chapter.label} · ${wrong.length} question${wrong.length === 1 ? '' : 's'} to revise`;
+
+  document.getElementById('wrong-list').innerHTML = wrong
+    .map(({ question, chosen }) => `
+      <li>
+        <div class="wrong-list-fact">${toOneLiner(question)}</div>
+        <div class="wrong-list-yours">Your answer: ${escapeHtml(question.opts[chosen])}</div>
+      </li>
+    `)
+    .join('');
+
+  goTo('wronglist');
 }
 
 // ── LESSON MODE (spaced-repetition study sessions) ────────────
@@ -1422,6 +1616,7 @@ function submitLesson() {
   state.reviseInfo = null;
   state.lessonInfo = { from, to, subqSize, loops, rangeSize: rangeSlice.length };
   state.starredInfo = null;
+  state.testInfo = null;
   state.bgImageCache = new Map();
   state.bgPrefetchInFlight = new Set();
 
@@ -1835,6 +2030,13 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   const reviseModal = document.getElementById('revise-modal');
+  const testModal = document.getElementById('test-modal');
+
+  testModal.addEventListener('click', event => {
+    if (event.target === testModal) {
+      closeTestModal();
+    }
+  });
 
   reviseModal.addEventListener('click', event => {
     if (event.target === reviseModal) {
@@ -1864,6 +2066,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (reviseModal.classList.contains('open')) {
       closeReviseModal();
+    }
+
+    if (testModal.classList.contains('open')) {
+      closeTestModal();
     }
   });
 
@@ -1943,7 +2149,14 @@ async function endQuiz() {
       ? 'Reattempted wrong questions'
       : state.starredInfo
         ? `${state.chapter.label} · Starred questions`
-        : state.chapter.label;
+        : state.testInfo
+          ? `${state.chapter.label} · Test ${state.testInfo.from}-${state.testInfo.to} (${state.testInfo.order === 'random' ? 'random' : 'chronological'} order)`
+          : state.chapter.label;
+
+  const wrongCount = state.testInfo ? getTestWrongAnswers().length : 0;
+  document.getElementById('btn-wrong-list').style.display = wrongCount > 0 ? '' : 'none';
+  document.getElementById('wrong-list-count').textContent = wrongCount;
+  document.getElementById('btn-retry').textContent = state.testInfo ? '↻ Retake test' : '↻ Retry chapter';
 
   document.getElementById('res-correct').textContent =
     correct;
@@ -2037,6 +2250,11 @@ function retryQuiz() {
 
   if (state.starredInfo) {
     startStarredSession();
+    return;
+  }
+
+  if (state.testInfo) {
+    startTest(state.testInfo);
     return;
   }
 

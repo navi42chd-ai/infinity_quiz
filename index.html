@@ -101,9 +101,10 @@
         <button class="theme-toggle theme-toggle-inline" onclick="toggleTheme()" title="Toggle dark mode" aria-label="Toggle dark mode"><span class="theme-icon">🌙</span><span class="menu-label theme-label">Dark mode</span></button>
         <button class="theme-toggle theme-toggle-inline milestone-toggle" onclick="toggleMilestones()" title="Milestone celebrations" aria-label="Toggle milestone celebrations" aria-pressed="true"><span>🎬</span><span class="menu-label milestone-label">Celebrations</span></button>
         <button class="btn-goto btn-starred" id="btn-starred" onclick="toggleStarredSession()" title="Practise this chapter's starred questions"><span class="btn-icon">⭐</span><span class="btn-label" id="btn-starred-label"></span><span class="starred-count" id="starred-count">0</span></button>
+        <button class="btn-goto btn-test" onclick="openTestModal()" title="Take a test: no hints, answers checked at the end"><span class="btn-icon">📝</span><span class="btn-label">Test</span></button>
         <button class="btn-goto btn-revise" onclick="openReviseModal()" title="Revise a range of questions"><span class="btn-icon">🔁</span><span class="btn-label">Revise</span></button>
         <button class="btn-goto" onclick="openLessonModal()" title="Start a spaced-repetition lesson"><span class="btn-icon">📘</span><span class="btn-label">Lesson</span></button>
-        <button class="btn-goto" onclick="openGotoModal()" title="Jump to a question"><span class="btn-icon">🗺️</span><span class="btn-label">Question map</span></button>
+        <button class="btn-goto btn-map" onclick="openGotoModal()" title="Jump to a question"><span class="btn-icon">🗺️</span><span class="btn-label">Question map</span></button>
         </div>
         </div>
       </div>
@@ -132,8 +133,52 @@
 
   <section id="screen-result" class="screen">
     <nav class="breadcrumb" id="result-breadcrumb"></nav>
-    <div class="result-card"><div class="result-ring" id="res-ring"><div class="result-pct" id="res-pct">—</div></div><div class="result-grade" id="res-grade"></div><div class="result-chapter-label" id="res-chapter"></div><div class="result-stats"><div class="stat-box"><div class="stat-num good" id="res-correct">0</div><div class="stat-lbl">Correct</div></div><div class="stat-box"><div class="stat-num bad" id="res-wrong">0</div><div class="stat-lbl">Wrong</div></div><div class="stat-box"><div class="stat-num" id="res-skipped">0</div><div class="stat-lbl">Skipped</div></div><div class="stat-box"><div class="stat-num" id="res-attempted">0</div><div class="stat-lbl">Attempted</div></div><div class="stat-box"><div class="stat-num" id="res-total">0</div><div class="stat-lbl">Total</div></div><div class="stat-box"><div class="stat-num" id="res-time">—</div><div class="stat-lbl">Time</div></div></div><div class="result-actions"><button class="btn" onclick="retryQuiz()">↻ Retry chapter</button><button class="btn btn-outline" onclick="goChapters()">← Chapters</button><button class="btn btn-outline" onclick="goSubjects()">⌂ Home</button></div></div>
+    <div class="result-card"><div class="result-ring" id="res-ring"><div class="result-pct" id="res-pct">—</div></div><div class="result-grade" id="res-grade"></div><div class="result-chapter-label" id="res-chapter"></div><div class="result-stats"><div class="stat-box"><div class="stat-num good" id="res-correct">0</div><div class="stat-lbl">Correct</div></div><div class="stat-box"><div class="stat-num bad" id="res-wrong">0</div><div class="stat-lbl">Wrong</div></div><div class="stat-box"><div class="stat-num" id="res-skipped">0</div><div class="stat-lbl">Skipped</div></div><div class="stat-box"><div class="stat-num" id="res-attempted">0</div><div class="stat-lbl">Attempted</div></div><div class="stat-box"><div class="stat-num" id="res-total">0</div><div class="stat-lbl">Total</div></div><div class="stat-box"><div class="stat-num" id="res-time">—</div><div class="stat-lbl">Time</div></div></div><div class="result-actions"><button class="btn btn-wrong-list" id="btn-wrong-list" onclick="showWrongList()" style="display:none">📋 Wrong answers <span id="wrong-list-count">0</span></button><button class="btn" id="btn-retry" onclick="retryQuiz()">↻ Retry chapter</button><button class="btn btn-outline" onclick="goChapters()">← Chapters</button><button class="btn btn-outline" onclick="goSubjects()">⌂ Home</button></div></div>
   </section>
+
+  <section id="screen-wronglist" class="screen">
+    <nav class="breadcrumb" id="wronglist-breadcrumb"></nav>
+    <div class="wrong-list-card">
+      <div class="eyebrow">TEST REVIEW</div>
+      <h1 class="section-title">Wrong answers</h1>
+      <p class="wrong-list-sub" id="wrong-list-sub"></p>
+      <ol class="wrong-list" id="wrong-list"></ol>
+      <div class="result-actions">
+        <button class="btn btn-outline" onclick="goTo('result')">← Back to results</button>
+        <button class="btn" onclick="retryQuiz()">↻ Retake test</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div id="test-modal" class="modal-backdrop">
+  <div class="modal-box">
+    <div class="modal-icon">📝</div>
+    <div class="modal-title">Take a test</div>
+    <div class="modal-sub" id="test-range-hint">Answers aren't shown until the end. Choosing an option moves straight to the next question.</div>
+
+    <div class="revise-field-row">
+      <div class="revise-field">
+        <label for="test-from">From</label>
+        <input id="test-from" class="modal-input" type="number" min="1" />
+      </div>
+      <div class="revise-field">
+        <label for="test-to">To</label>
+        <input id="test-to" class="modal-input" type="number" min="1" />
+      </div>
+    </div>
+
+    <div class="test-order-label">Question order</div>
+    <div class="test-order-choices">
+      <button class="test-order-btn" onclick="submitTest('random')"><span class="test-order-icon">🔀</span><span><strong>Random</strong><small>Questions in shuffled order</small></span></button>
+      <button class="test-order-btn" onclick="submitTest('chrono')"><span class="test-order-icon">🔢</span><span><strong>Chronological</strong><small>Questions in chapter order</small></span></button>
+    </div>
+
+    <div class="modal-error" id="test-error"></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeTestModal()">Cancel</button>
+    </div>
+  </div>
 </div>
 
 <div id="goto-modal" class="modal-backdrop"><div class="modal-box"><div class="modal-icon">#</div><div class="modal-title">Jump to a question</div><div class="modal-sub" id="goto-range">Enter a question number</div><input id="goto-input" class="modal-input" type="number" min="1" placeholder="e.g. 142" /><div class="modal-error" id="goto-error"></div><div class="modal-actions"><button class="btn btn-outline" onclick="closeGotoModal()">Cancel</button><button class="btn" onclick="submitGoto()">Go →</button></div></div></div>
