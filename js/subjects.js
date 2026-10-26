@@ -196,6 +196,12 @@ const SUBJECTS = [
         label: 'Synonyms 3',
         subtitle: '246 one-liner based MCQs',
         dataVar: 'chapter_synonyms_3'
+      },
+      {
+        id: 'synonyms-4',
+        label: 'Synonyms 4',
+        subtitle: '265 one-liner based MCQs',
+        dataVar: 'chapter_synonyms_4'
       }
     ]
   }
