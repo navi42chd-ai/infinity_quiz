@@ -246,5 +246,21 @@ const SUBJECTS = [
         dataVar: 'chapter_synonyms_11'
       }
     ]
+  },
+  {
+    id: 'sc-rules',
+    label: 'SC Rules',
+    icon: '📜',
+    color: '#9a3412',
+    colorLight: '#fdeee4',
+    description: 'Supreme Court Rules, 2013 — orders, officers, advocates and practice.',
+    chapters: [
+      {
+        id: 'chapter-1',
+        label: 'Chapter 1',
+        subtitle: '169 one-liner based MCQs',
+        dataVar: 'chapter_sc_rules_1'
+      }
+    ]
   }
 ];
