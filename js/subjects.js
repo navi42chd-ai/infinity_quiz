@@ -296,6 +296,12 @@ const SUBJECTS = [
         label: 'Chapter 7',
         subtitle: '91 one-liner based MCQs',
         dataVar: 'chapter_sc_rules_7'
+      },
+      {
+        id: 'chapter-8',
+        label: 'Chapter 8',
+        subtitle: '115 one-liner based MCQs',
+        dataVar: 'chapter_sc_rules_8'
       }
     ]
   }
