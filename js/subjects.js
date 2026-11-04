@@ -306,7 +306,7 @@ const SUBJECTS = [
       {
         id: 'chapter-9',
         label: 'Chapter 9',
-        subtitle: '134 one-liner based MCQs',
+        subtitle: '376 one-liner based MCQs',
         dataVar: 'chapter_sc_rules_9'
       }
     ]
