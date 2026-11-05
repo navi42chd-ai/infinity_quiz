@@ -310,5 +310,111 @@ const SUBJECTS = [
         dataVar: 'chapter_sc_rules_9'
       }
     ]
+  },
+  {
+    id: 'sci-jca',
+    label: 'SCI JCA',
+    icon: '⚖️',
+    color: '#3730a3',
+    colorLight: '#e0e7ff',
+    description: 'Law practice for the Supreme Court Junior Court Assistant exam.',
+    chapters: [
+      {
+        id: 'fundamental-rights',
+        label: 'Fundamental Rights and Writs (Article 32)',
+        subtitle: '4 MCQs',
+        dataVar: 'chapter_sci_jca_fundamental_rights'
+      },
+      {
+        id: 'constitutional-supreme-court',
+        label: 'Supreme Court and Its Jurisdiction (Articles 124–147)',
+        subtitle: '62 MCQs',
+        dataVar: 'chapter_sci_jca_constitutional_supreme_court'
+      },
+      {
+        id: 'constitutional-high-courts',
+        label: 'High Courts and Subordinate Courts (Articles 214–237)',
+        subtitle: '44 MCQs',
+        dataVar: 'chapter_sci_jca_constitutional_high_courts'
+      },
+      {
+        id: 'court-administration',
+        label: 'Court Administration, Advocates and Filing (Orders I–VIII)',
+        subtitle: '126 MCQs',
+        dataVar: 'chapter_sci_jca_court_administration'
+      },
+      {
+        id: 'court-practice',
+        label: 'Court Practice, Petitions and Hearings (Orders IX–XVIII)',
+        subtitle: '99 MCQs',
+        dataVar: 'chapter_sci_jca_court_practice'
+      },
+      {
+        id: 'civil-criminal-appeals',
+        label: 'Civil and Criminal Appeals (Orders XIX–XX)',
+        subtitle: '65 MCQs',
+        dataVar: 'chapter_sci_jca_civil_criminal_appeals'
+      },
+      {
+        id: 'civil-slp',
+        label: 'Civil Special Leave Petitions (Order XXI)',
+        subtitle: '60 MCQs',
+        dataVar: 'chapter_sci_jca_civil_slp'
+      },
+      {
+        id: 'criminal-slp-special-appeals',
+        label: 'Criminal SLPs and Statutory Appeals (Orders XXII–XXIV)',
+        subtitle: '78 MCQs',
+        dataVar: 'chapter_sci_jca_criminal_slp_special_appeals'
+      },
+      {
+        id: 'original-suits',
+        label: 'Original Suits and Trial Procedure (Orders XXV–XXXVII)',
+        subtitle: '86 MCQs',
+        dataVar: 'chapter_sci_jca_original_suits'
+      },
+      {
+        id: 'writ-petitions',
+        label: 'Enforcement of Fundamental Rights (Order XXXVIII)',
+        subtitle: '30 MCQs',
+        dataVar: 'chapter_sci_jca_writ_petitions'
+      },
+      {
+        id: 'transfers-references-elections',
+        label: 'Transfers, References and Election Petitions (Orders XXXIX–XLVI)',
+        subtitle: '95 MCQs',
+        dataVar: 'chapter_sci_jca_transfers_references_elections'
+      },
+      {
+        id: 'review-costs-service',
+        label: 'Review, Curative Petitions, Costs and Procedure (Orders XLVII–LVII)',
+        subtitle: '89 MCQs',
+        dataVar: 'chapter_sci_jca_review_costs_service'
+      },
+      {
+        id: 'staff-appointments',
+        label: 'Staff Recruitment and Conditions of Service (Rules 1–10)',
+        subtitle: '18 MCQs',
+        dataVar: 'chapter_sci_jca_staff_appointments'
+      },
+      {
+        id: 'staff-discipline',
+        label: 'Penalties, Inquiries, Suspension and Appeals (Rules 11–23)',
+        subtitle: '52 MCQs',
+        dataVar: 'chapter_sci_jca_staff_discipline'
+      },
+      {
+        id: 'staff-conduct',
+        label: 'Staff Conduct, Politics, Gifts and Outside Work (Rules 24–33)',
+        subtitle: '39 MCQs',
+        dataVar: 'chapter_sci_jca_staff_conduct'
+      },
+      {
+        id: 'staff-property-obligations',
+        label: 'Property, Financial Dealings and Service Obligations (Rules 34–49)',
+        subtitle: '59 MCQs',
+        dataVar: 'chapter_sci_jca_staff_property_obligations'
+      }
+    ]
   }
 ];
