@@ -416,5 +416,21 @@ const SUBJECTS = [
         dataVar: 'chapter_sci_jca_staff_property_obligations'
       }
     ]
+  },
+  {
+    id: 'demo',
+    label: 'Demo',
+    icon: '🧪',
+    color: '#0f766e',
+    colorLight: '#ccfbf1',
+    description: 'A short quiz for testing new features.',
+    chapters: [
+      {
+        id: 'demo-chapter',
+        label: 'Demo Chapter',
+        subtitle: '2 MCQs',
+        dataVar: 'chapter_demo'
+      }
+    ]
   }
 ];

@@ -700,6 +700,18 @@ function renderQuestion() {
   document.getElementById('q-kicker').textContent = `${state.chapter.label} MCQ`;
   document.getElementById('q-text').textContent = question.q;
 
+  const explanationButton = document.getElementById('btn-explanation');
+  const supportsExplanations = state.subject.id === 'sci-jca'
+    || state.subject.id === 'modern-history'
+    || (state.subject.id === 'demo' && state.chapter.id === 'demo-chapter');
+  const canShowExplanation = supportsExplanations && !state.isReattempt
+    && !state.testInfo && Boolean(question.exp);
+  explanationButton.hidden = !canShowExplanation;
+  explanationButton.onclick = canShowExplanation ? () => {
+    document.getElementById('explanation-text').textContent = question.exp;
+    document.getElementById('explanation-dialog').showModal();
+  } : null;
+
   // Options
   const labels = ['A', 'B', 'C', 'D'];
   const optionsElement = document.getElementById('options');

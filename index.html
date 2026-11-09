@@ -84,6 +84,7 @@
   <script src="data/sci-jca/ch14-staff-discipline.js"></script>
   <script src="data/sci-jca/ch15-staff-conduct.js"></script>
   <script src="data/sci-jca/ch16-staff-property-obligations.js"></script>
+  <script src="data/demo/ch01-demo-chapter.js"></script>
 </head>
 <body>
 <div id="milestone-overlay" class="milestone-overlay" aria-hidden="true">
@@ -158,6 +159,7 @@
             <button class="btn-image" onclick="openQuestionImage()" title="Show a related image">🖼️ Image</button>
           </div>
         </div>
+        <button type="button" class="btn-image" id="btn-explanation" aria-haspopup="dialog" hidden>Explanation</button>
         <p class="q-text" id="q-text"></p>
         <div class="options-list" id="options"></div>
       </div>
@@ -281,6 +283,14 @@
     </div>
   </div>
 </div>
+
+<dialog id="explanation-dialog" class="modal-box" aria-labelledby="explanation-title" aria-describedby="explanation-text">
+  <h2 id="explanation-title" class="modal-title">Explanation</h2>
+  <p id="explanation-text" class="modal-sub"></p>
+  <form method="dialog" class="modal-actions">
+    <button class="btn btn-outline" autofocus>Close</button>
+  </form>
+</dialog>
 
 <div id="image-modal" class="modal-backdrop">
   <div class="modal-box image-modal-box">
