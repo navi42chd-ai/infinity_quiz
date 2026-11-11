@@ -147,7 +147,7 @@
         </div>
         </div>
       </div>
-      <div class="quiz-meta-row"><span class="prog-text" id="prog-text">Q 1 / 242</span><span class="streak-badge" id="streak-badge" style="display:none">🔥 <span id="streak-count">0</span></span><span class="prog-attempted" id="prog-attempted">0 attempted</span></div>
+      <div class="quiz-meta-row"><span class="prog-text" id="prog-text">Q 1 / 242</span><span class="streak-badge" id="streak-badge" style="display:none">🔥 <span id="streak-count">0</span></span><span class="prog-attempted" id="prog-attempted">0 attempted</span><span class="lesson-countdown" id="lesson-countdown" role="timer" aria-label="Time remaining" hidden></span></div>
       <div class="prog-track"><div class="prog-fill" id="prog-bar"></div></div>
     </div>
     <main class="quiz-body">
@@ -276,7 +276,22 @@
       </div>
     </div>
 
-    <div class="modal-error" id="lesson-error"></div>
+    <label class="lesson-timer-toggle" for="lesson-timer-enabled">
+      Timer
+      <input id="lesson-timer-enabled" type="checkbox" role="switch" aria-controls="lesson-timer-fields" onchange="updateLessonTimerFields()" />
+    </label>
+    <div id="lesson-timer-fields" class="revise-field-row lesson-field-row" hidden>
+      <div class="revise-field">
+        <label for="lesson-minutes">Minutes</label>
+        <input id="lesson-minutes" class="modal-input" type="number" min="0" step="1" value="5" inputmode="numeric" disabled />
+      </div>
+      <div class="revise-field">
+        <label for="lesson-seconds">Seconds</label>
+        <input id="lesson-seconds" class="modal-input" type="number" min="0" max="59" step="1" value="0" inputmode="numeric" disabled />
+      </div>
+    </div>
+
+    <div class="modal-error" id="lesson-error" role="status"></div>
     <div class="modal-actions">
       <button class="btn btn-outline" onclick="closeLessonModal()">Cancel</button>
       <button class="btn" onclick="submitLesson()">Start →</button>

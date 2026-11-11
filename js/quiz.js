@@ -23,6 +23,8 @@ let state = {
                               // fired this session, so each shows only once
 };
 
+let lessonTimer = null;
+
 const WRONG_QUESTIONS_KEY = 'ssc-quiz-wrong-questions-v1';
 const THEME_KEY = 'quizhub-theme';
 const MILESTONES_KEY = 'quizhub-milestones-enabled';
@@ -524,6 +526,9 @@ function prepareQuestions(questions) {
 // ── SCREEN NAVIGATION ────────────────────────────────────────
 
 function goTo(screen) {
+  if (lessonTimer && (screen !== 'quiz' || lessonTimer.answers !== state.answered)) {
+    stopLessonTimer();
+  }
   closeTopMenus();
   document.querySelectorAll('.screen').forEach(screenElement => {
     screenElement.classList.remove('active');
@@ -901,6 +906,11 @@ function willTriggerImmediateMilestone() {
 }
 
 function answer(chosenIndex) {
+  if (lessonTimer && Date.now() >= lessonTimer.deadline) {
+    endQuiz();
+    return;
+  }
+
   const question = state.questions[state.current];
   const isCorrect = chosenIndex === question.ans;
 
@@ -926,7 +936,7 @@ function answer(chosenIndex) {
   // If this correct answer is about to pop up a milestone clip, let that
   // clip's own audio carry the moment instead of layering another sound
   // underneath it.
-  const suppressCorrectSound = isCorrect && willTriggerImmediateMilestone();
+  const suppressCorrectSound = isCorrect && !lessonTimer && willTriggerImmediateMilestone();
 
   showAnswer(chosenIndex, question.ans, {
     fresh: true,
@@ -942,7 +952,9 @@ function answer(chosenIndex) {
   document.getElementById('prog-attempted').textContent =
     `${attempted} attempted`;
 
-  if (isCorrect) {
+  if (lessonTimer) {
+    if (attempted === state.questions.length) endQuiz();
+  } else if (isCorrect) {
     checkMilestones();
   }
 }
@@ -1498,6 +1510,41 @@ function showWrongList() {
 
 const LESSON_MAX_GENERATED_QUESTIONS = 4000;
 
+function updateLessonTimerFields() {
+  const enabled = document.getElementById('lesson-timer-enabled').checked;
+  document.getElementById('lesson-timer-fields').hidden = !enabled;
+  document.getElementById('lesson-minutes').disabled = !enabled;
+  document.getElementById('lesson-seconds').disabled = !enabled;
+  document.getElementById('lesson-error').textContent = '';
+}
+
+function startLessonTimer(durationMs) {
+  const countdown = document.getElementById('lesson-countdown');
+  const deadline = state.startTime + durationMs;
+  const tick = () => {
+    const remaining = Math.ceil((deadline - Date.now()) / 1000);
+    if (remaining <= 0) {
+      endQuiz();
+      return;
+    }
+
+    const minutes = Math.floor(remaining / 60);
+    const seconds = String(remaining % 60).padStart(2, '0');
+    countdown.textContent = `${minutes}:${seconds}`;
+    countdown.classList.toggle('is-low', remaining <= 10);
+  };
+
+  lessonTimer = { deadline, interval: setInterval(tick, 250), answers: state.answered };
+  countdown.hidden = false;
+  tick();
+}
+
+function stopLessonTimer() {
+  clearInterval(lessonTimer.interval);
+  lessonTimer = null;
+  document.getElementById('lesson-countdown').hidden = true;
+}
+
 function openLessonModal() {
   const total = (state.chapterQuestions.length || state.questions.length);
 
@@ -1523,7 +1570,10 @@ function openLessonModal() {
   loopsInput.min = 1;
   loopsInput.value = 5;
 
-  document.getElementById('lesson-error').textContent = '';
+  document.getElementById('lesson-timer-enabled').checked = false;
+  document.getElementById('lesson-minutes').value = 5;
+  document.getElementById('lesson-seconds').value = 0;
+  updateLessonTimerFields();
   document.getElementById('lesson-modal').classList.add('open');
 }
 
@@ -1567,6 +1617,18 @@ function submitLesson() {
   if (loops > 20) {
     errorEl.textContent = 'Please choose 20 loops or fewer.';
     return;
+  }
+
+  let durationMs = 0;
+  if (document.getElementById('lesson-timer-enabled').checked) {
+    const minutes = document.getElementById('lesson-minutes');
+    const seconds = document.getElementById('lesson-seconds');
+    durationMs = (Number(minutes.value) * 60 + Number(seconds.value)) * 1000;
+    if (!minutes.validity.valid || !seconds.validity.valid || durationMs < 1000 ||
+        !Number.isSafeInteger(Date.now() + durationMs)) {
+      errorEl.textContent = 'Enter a time above zero using whole minutes and 0–59 seconds.';
+      return;
+    }
   }
 
   const rangeSlice = base.slice(from - 1, to);
@@ -1635,6 +1697,7 @@ function submitLesson() {
   closeLessonModal();
   renderQuestion();
   goTo('quiz');
+  if (durationMs > 0) startLessonTimer(durationMs);
 }
 
 // ── RELATED IMAGE LOOKUP (Wikipedia — free, no API key needed) ──
@@ -2093,10 +2156,17 @@ document.addEventListener('DOMContentLoaded', () => {
 // ── RESULT SCREEN ────────────────────────────────────────────
 
 async function endQuiz() {
-  // A perfect run gets its own celebration clip, shown right before the
-  // results screen appears. This resolves immediately if that doesn't
-  // apply (not a perfect run, feature off, or already shown).
-  await maybeShowPerfectRunMilestone();
+  const deadline = lessonTimer?.deadline;
+  const timedOut = deadline !== undefined && Date.now() >= deadline;
+  if (lessonTimer) {
+    stopLessonTimer();
+    document.querySelectorAll('.modal-backdrop.open').forEach(modal => {
+      modal.classList.remove('open');
+    });
+    document.getElementById('explanation-dialog').close();
+  } else {
+    await maybeShowPerfectRunMilestone();
+  }
 
   const total = state.questions.length;
 
@@ -2113,8 +2183,8 @@ async function endQuiz() {
       ? Math.round((correct / attempted) * 100)
       : 0;
 
-  const elapsed =
-    Math.round((Date.now() - state.startTime) / 1000);
+  const finishedAt = timedOut ? deadline : Date.now();
+  const elapsed = Math.round((finishedAt - state.startTime) / 1000);
 
   const minutes = Math.floor(elapsed / 60);
   const seconds = elapsed % 60;
@@ -2164,6 +2234,8 @@ async function endQuiz() {
         : state.testInfo
           ? `${state.chapter.label} · Test ${state.testInfo.from}-${state.testInfo.to} (${state.testInfo.order === 'random' ? 'random' : 'chronological'} order)`
           : state.chapter.label;
+
+  if (timedOut) document.getElementById('res-chapter').textContent += ' · Time’s up';
 
   const wrongCount = state.testInfo ? getTestWrongAnswers().length : 0;
   document.getElementById('btn-wrong-list').style.display = wrongCount > 0 ? '' : 'none';

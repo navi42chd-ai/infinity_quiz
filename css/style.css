@@ -662,6 +662,25 @@ textarea {
   margin-left: auto;
 }
 
+.quiz-meta-row:has(.lesson-countdown:not([hidden])) {
+  flex-wrap: wrap;
+  row-gap: 4px;
+}
+
+.lesson-countdown {
+  padding: 2px 9px;
+  border: 1px solid var(--accent-soft-2);
+  border-radius: 999px;
+  background: var(--accent-tint);
+  color: var(--accent);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.lesson-countdown.is-low {
+  color: var(--red);
+}
+
 .streak-badge {
   margin-left: 10px;
   padding: 2px 9px;
@@ -1583,6 +1602,56 @@ html .option-btn.correct.stone-active {
 
 .lesson-field-row {
   margin-top: 12px;
+}
+
+#lesson-modal .modal-box {
+  max-height: calc(100dvh - 40px);
+  overflow-y: auto;
+}
+
+#lesson-timer-fields[hidden] {
+  display: none;
+}
+
+.lesson-timer-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.lesson-timer-toggle input {
+  appearance: none;
+  display: flex;
+  align-items: center;
+  width: 44px;
+  height: 24px;
+  padding: 2px;
+  border: 1px solid var(--muted);
+  border-radius: 999px;
+  background: var(--track-bg);
+  cursor: pointer;
+}
+
+.lesson-timer-toggle input::before {
+  content: '';
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--muted);
+}
+
+.lesson-timer-toggle input:checked {
+  justify-content: flex-end;
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
+.lesson-timer-toggle input:checked::before {
+  background: var(--paper);
 }
 
 .modal-error {
